@@ -10,75 +10,54 @@
 <title>AFTT · Mon Compteur Ping</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2336;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --text: #eef0f7;
-    --muted: #8b90a8;
-    --accent: #4f8ef7;
-    --accent2: #3a6fd4;
-    --green: #3ecf8e;
-    --red: #f76e6e;
-    --orange: #f7a84f;
-    --radius: 14px;
-    --radius-sm: 8px;
+    --bg: #0f1117; --surface: #181c27; --surface2: #1e2336;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --text: #eef0f7; --muted: #8b90a8;
+    --accent: #4f8ef7; --accent2: #3a6fd4;
+    --green: #3ecf8e; --red: #f76e6e; --orange: #f7a84f;
+    --radius: 14px; --radius-sm: 8px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
     font-family: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    max-width: 480px;
-    margin: 0 auto;
-    padding-bottom: 80px;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 80px;
   }
-
-  /* HEADER */
   .header {
     position: sticky; top: 0; z-index: 10;
     background: rgba(15,17,23,0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 18px 10px;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); padding: 14px 18px 10px;
   }
   .header-top { display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
   .header h1 span { color: var(--accent); }
   .btn-ghost {
-    background: none; border: 1px solid var(--border2);
-    color: var(--muted); border-radius: 20px;
-    padding: 5px 13px; font-size: 13px; cursor: pointer;
-    transition: all 0.15s;
+    background: none; border: 1px solid var(--border2); color: var(--muted);
+    border-radius: 20px; padding: 5px 13px; font-size: 13px; cursor: pointer; transition: all 0.15s;
   }
   .btn-ghost:active { background: var(--surface2); }
-
-  /* STATS CARD */
   .stats-card {
-    margin: 14px 14px 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
+    margin: 14px 14px 0; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;
   }
   .stats-name { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .stats-pts { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
   .stats-pts .pts-base { color: var(--muted); font-size: 16px; font-weight: 400; }
+  .stats-edit-btn {
+    display: inline-block; margin-top: 6px; font-size: 12px; color: var(--accent);
+    background: none; border: 1px solid var(--accent2); border-radius: 20px;
+    padding: 3px 10px; cursor: pointer; transition: all 0.15s;
+  }
+  .stats-edit-btn:active { background: rgba(79,142,247,0.15); }
   .stats-row { display: flex; gap: 10px; margin-top: 12px; }
   .stat-pill {
-    flex: 1; background: var(--surface2);
-    border-radius: var(--radius-sm); padding: 8px 10px; text-align: center;
+    flex: 1; background: var(--surface2); border-radius: var(--radius-sm);
+    padding: 8px 10px; text-align: center;
   }
   .stat-pill .val { font-size: 17px; font-weight: 600; }
   .stat-pill .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .val.pos { color: var(--green); }
-  .val.neg { color: var(--red); }
-  .val.neu { color: var(--text); }
-
-  /* TABS */
+  .val.pos { color: var(--green); } .val.neg { color: var(--red); } .val.neu { color: var(--text); }
   .tabs { display: flex; margin: 14px 14px 0; gap: 6px; }
   .tab {
     flex: 1; padding: 10px; text-align: center;
@@ -87,23 +66,16 @@
     color: var(--muted); cursor: pointer; transition: all 0.15s;
   }
   .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-  /* SECTION */
   .section { padding: 14px; }
-
-  /* FORM */
   .field { margin-bottom: 12px; }
   .field label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
   select, input[type="number"], input[type="text"] {
     width: 100%; background: var(--surface); border: 1px solid var(--border2);
     color: var(--text); border-radius: var(--radius-sm); padding: 12px 14px;
-    font-size: 16px; outline: none; appearance: none; -webkit-appearance: none;
-    transition: border 0.15s;
+    font-size: 16px; outline: none; appearance: none; -webkit-appearance: none; transition: border 0.15s;
   }
   select:focus, input:focus { border-color: var(--accent); }
   select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b90a8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-
-  /* MATCH ROWS */
   .match-inputs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
   .match-row {
     display: flex; align-items: center; gap: 8px;
@@ -112,24 +84,20 @@
   }
   .match-row .match-num { font-size: 12px; color: var(--muted); min-width: 22px; font-weight: 600; }
   .match-row input {
-    flex: 1; border: none; background: var(--surface2);
+    flex: 1; border: 1px solid var(--border); background: var(--surface2);
     border-radius: 6px; padding: 8px 10px; font-size: 15px;
-    border: 1px solid var(--border);
   }
   .toggle-btn {
     border: 1px solid var(--border2); border-radius: 20px;
     padding: 7px 14px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-    min-width: 84px; text-align: center;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; min-width: 84px; text-align: center;
   }
   .toggle-btn.win { background: rgba(62,207,142,0.15); border-color: var(--green); color: var(--green); }
   .toggle-btn.lose { background: rgba(247,110,110,0.12); border-color: var(--red); color: var(--red); }
-
-  /* BUTTONS */
   .btn-primary {
-    width: 100%; padding: 15px; background: var(--accent);
-    border: none; border-radius: var(--radius); color: #fff;
-    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    width: 100%; padding: 15px; background: var(--accent); border: none;
+    border-radius: var(--radius); color: #fff; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
   }
   .btn-primary:active { background: var(--accent2); transform: scale(0.98); }
   .btn-secondary {
@@ -144,20 +112,15 @@
     color: var(--red); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s;
   }
   .btn-danger:active { background: rgba(247,110,110,0.2); }
-
-  /* MATCH LIST */
   .match-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .match-card .mc-left { flex: 1; }
   .match-card .mc-comp { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
   .match-card .mc-vs { font-size: 14px; font-weight: 500; }
   .match-card .mc-pts { font-size: 18px; font-weight: 700; }
   .empty-state { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 20px; }
-
-  /* MODAL / OVERLAY */
   .modal-overlay {
     display: none; position: fixed; inset: 0; z-index: 100;
     background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
@@ -167,38 +130,56 @@
   .modal {
     background: var(--surface); border-radius: 20px 20px 0 0;
     width: 100%; max-width: 480px; padding: 24px 20px 40px;
-    border: 1px solid var(--border);
-    animation: slideUp 0.25s ease;
+    border: 1px solid var(--border); animation: slideUp 0.25s ease;
+    max-height: 90vh; overflow-y: auto;
   }
   @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .modal .field { margin-bottom: 14px; }
 
-  /* PROFIL SWITCHER */
+  /* PROFIL ITEM */
   .profil-item {
-    display: flex; align-items: center; justify-content: space-between;
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
-    cursor: pointer; transition: all 0.15s;
   }
-  .profil-item:active { background: var(--surface); }
   .profil-item.active-profil { border-color: var(--accent); }
-  .profil-item .pi-name { font-weight: 600; font-size: 15px; }
-  .profil-item .pi-pts { font-size: 13px; color: var(--muted); }
-  .profil-item .pi-check { color: var(--accent); font-size: 18px; }
+  .profil-item-top {
+    display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+  }
+  .pi-name { font-weight: 600; font-size: 15px; }
+  .pi-pts { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .pi-check { color: var(--accent); font-size: 18px; margin-left: 8px; }
+  .profil-actions {
+    display: none; gap: 8px; margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .profil-actions.open { display: flex; }
+  .btn-action {
+    flex: 1; padding: 8px; border-radius: var(--radius-sm); font-size: 13px;
+    font-weight: 500; cursor: pointer; border: 1px solid var(--border2);
+    background: var(--surface); color: var(--text); transition: all 0.15s; text-align: center;
+  }
+  .btn-action.edit { color: var(--accent); border-color: var(--accent2); }
+  .btn-action.edit:active { background: rgba(79,142,247,0.15); }
+  .btn-action.del { color: var(--red); border-color: rgba(247,110,110,0.4); }
+  .btn-action.del:active { background: rgba(247,110,110,0.1); }
+  .btn-action.select { color: var(--green); border-color: rgba(62,207,142,0.4); }
+  .btn-action.select:active { background: rgba(62,207,142,0.1); }
 
   .sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-  .tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--surface2); color: var(--muted); margin-right: 4px; }
-
-  /* TOAST */
   .toast {
     position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
     background: var(--surface2); border: 1px solid var(--border2);
     border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500;
-    z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none;
-    white-space: nowrap;
+    z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap;
   }
   .toast.show { opacity: 1; }
+  .confirm-box {
+    background: var(--surface2); border: 1px solid rgba(247,110,110,0.3);
+    border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;
+    font-size: 14px; color: var(--muted); line-height: 1.6;
+  }
+  .confirm-box strong { color: var(--red); }
 </style>
 </head>
 <body>
@@ -212,20 +193,24 @@
 
 <div class="stats-card" id="statsCard">
   <div class="stats-name" id="statsName">Aucun profil</div>
-  <div class="stats-pts" id="statsPts">—</div>
+  <!-- Ligne points hommes (toujours visible) -->
+  <div class="stats-pts" id="statsPtsM">—</div>
+  <!-- Ligne points dames (visible uniquement pour les femmes) -->
+  <div id="blockDames" style="display:none;">
+    <div class="stats-pts" style="font-size:20px;margin-top:4px;" id="statsPtsD">—</div>
+  </div>
+  <button class="stats-edit-btn" id="btnEditPts" onclick="openEditPoints()" style="display:none;">✏️ Modifier les points</button>
+  <!-- Pills évolution messieurs -->
   <div class="stats-row">
-    <div class="stat-pill">
-      <div class="val neu" id="statEvo">0</div>
-      <div class="lbl">Évolution</div>
-    </div>
-    <div class="stat-pill">
-      <div class="val neu" id="statVirtuel">—</div>
-      <div class="lbl">Virtuel</div>
-    </div>
-    <div class="stat-pill">
-      <div class="val neu" id="statMatchs">0</div>
-      <div class="lbl">Matchs</div>
-    </div>
+    <div class="stat-pill"><div class="val neu" id="statEvoM">0</div><div class="lbl" id="lblEvoM">Évolution</div></div>
+    <div class="stat-pill"><div class="val neu" id="statVirtuelM">—</div><div class="lbl" id="lblVirtuelM">Virtuel</div></div>
+    <div class="stat-pill"><div class="val neu" id="statMatchs">0</div><div class="lbl">Matchs</div></div>
+  </div>
+  <!-- Pills évolution dames (uniquement pour les femmes) -->
+  <div class="stats-row" id="rowEvoD" style="display:none;">
+    <div class="stat-pill"><div class="val neu" id="statEvoD">0</div><div class="lbl">Évol. Dames</div></div>
+    <div class="stat-pill"><div class="val neu" id="statVirtuelD">—</div><div class="lbl">Virtuel Dames</div></div>
+    <div class="stat-pill" style="visibility:hidden;"></div>
   </div>
 </div>
 
@@ -244,6 +229,13 @@
       <option value="Tournoi">Tournoi</option>
     </select>
   </div>
+  <div class="field" id="fieldTournoiGenre" style="display:none;">
+    <label>Tableau joué</label>
+    <select id="selTournoiGenre">
+      <option value="Messieurs">Tableau Messieurs → points messieurs</option>
+      <option value="Dames">Tableau Dames → points dames</option>
+    </select>
+  </div>
   <div class="field">
     <label>Division / Catégorie</label>
     <select id="selNiveau"></select>
@@ -258,9 +250,7 @@
 <!-- TAB MON MOIS -->
 <div class="section" id="tabMois" style="display:none;">
   <div id="listMatchs"></div>
-  <div id="emptyState" class="empty-state" style="display:none;">
-    Aucun match ce mois-ci.<br>Commencez à saisir vos résultats !
-  </div>
+  <div id="emptyState" class="empty-state" style="display:none;">Aucun match ce mois-ci.<br>Commencez à saisir vos résultats !</div>
   <hr class="sep">
   <button class="btn-secondary" style="margin-bottom:8px;" onclick="annulerDernier()">↩ Annuler le dernier match</button>
   <button class="btn-danger" onclick="confirmCloture()">🔒 Clôturer le mois</button>
@@ -278,17 +268,17 @@
   </div>
 </div>
 
-<!-- MODAL CRÉER PROFIL -->
+<!-- MODAL CRÉER / ÉDITER PROFIL -->
 <div class="modal-overlay" id="modalCreer">
   <div class="modal">
-    <h2>Nouveau profil</h2>
+    <h2 id="modalCreerTitre">Nouveau profil</h2>
     <div class="field">
       <label>Nom & Prénom</label>
       <input type="text" id="inputNom" placeholder="Ex: Jean Dupont">
     </div>
     <div class="field">
       <label>Genre</label>
-      <select id="inputGenre">
+      <select id="inputGenre" onchange="togglePtsDames()">
         <option value="Homme">Homme</option>
         <option value="Femme">Femme</option>
       </select>
@@ -301,8 +291,43 @@
       <label>Points Dames (si applicable)</label>
       <input type="number" id="inputPtsD" placeholder="0" value="0">
     </div>
-    <button class="btn-primary" onclick="creerProfil()" style="margin-bottom:10px;">Créer</button>
+    <button class="btn-primary" id="btnValiderProfil" onclick="validerProfil()" style="margin-bottom:10px;">Créer</button>
     <button class="btn-secondary" onclick="closeModal('modalCreer')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL MODIFIER POINTS -->
+<div class="modal-overlay" id="modalEditPts">
+  <div class="modal">
+    <h2>Modifier les points</h2>
+    <p style="color:var(--muted); font-size:13px; margin-bottom:16px; line-height:1.6;">
+      Mettez à jour vos points officiels depuis <strong style="color:var(--text);">data.aftt.be</strong>.<br>
+      Cela ne réinitialise pas vos matchs du mois en cours.
+    </p>
+    <div class="field">
+      <label>Points Messieurs</label>
+      <input type="number" id="editPtsM" placeholder="1150">
+    </div>
+    <div class="field" id="editFieldPtsD" style="display:none;">
+      <label>Points Dames</label>
+      <input type="number" id="editPtsD" placeholder="0">
+    </div>
+    <button class="btn-primary" onclick="sauvegarderPoints()" style="margin-bottom:10px;">Enregistrer</button>
+    <button class="btn-secondary" onclick="closeModal('modalEditPts')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL SUPPRIMER PROFIL -->
+<div class="modal-overlay" id="modalSupprimer">
+  <div class="modal">
+    <h2>Supprimer le profil ?</h2>
+    <div class="confirm-box">
+      Vous allez supprimer le profil <strong id="nomASupprimer"></strong>.<br>
+      Tous les matchs du mois en cours seront également perdus.<br>
+      Cette action est irréversible.
+    </div>
+    <button class="btn-danger" onclick="confirmerSuppression()" style="margin-bottom:10px;">Supprimer définitivement</button>
+    <button class="btn-secondary" onclick="closeModal('modalSupprimer')">Annuler</button>
   </div>
 </div>
 
@@ -323,14 +348,9 @@
 
 <script>
 const OPTS_INTERCLUBS = [
-  "Autres provinciales (R8)",
-  "P1 (R7)",
-  "N3 & IWB & Landelijk (R6)",
-  "N2 (R5)",
-  "N1 (R4)",
-  "SuperDivision (R3)",
-  "Interclubs vétérans (R9)",
-  "Compétitions promotionnelles (R10)"
+  "Autres provinciales (R8)","P1 (R7)","N3 & IWB & Landelijk (R6)",
+  "N2 (R5)","N1 (R4)","SuperDivision (R3)",
+  "Interclubs vétérans (R9)","Compétitions promotionnelles (R10)"
 ];
 const OPTS_TOURNOIS = [
   "Tournoi Série B & C (R5)",
@@ -340,300 +360,418 @@ const OPTS_TOURNOIS = [
   "Tableau final des Championnats de Belgique A (R1)",
   "Tournois vétérans (hors critérium, Champ. prov. et Belgique) (R9)"
 ];
-
 const COEFS_INTERCLUBS = {
-  "SuperDivision (R3)": 1.5, "N1 (R4)": 1.2, "N2 (R5)": 1.0,
-  "N3 & IWB & Landelijk (R6)": 0.95, "P1 (R7)": 0.9,
-  "Autres provinciales (R8)": 0.85, "Interclubs vétérans (R9)": 0.65,
-  "Compétitions promotionnelles (R10)": 0.35
+  "SuperDivision (R3)":1.5,"N1 (R4)":1.2,"N2 (R5)":1.0,
+  "N3 & IWB & Landelijk (R6)":0.95,"P1 (R7)":0.9,
+  "Autres provinciales (R8)":0.85,"Interclubs vétérans (R9)":0.65,
+  "Compétitions promotionnelles (R10)":0.35
 };
 const COEFS_TOURNOIS = {
-  "Tableau final des Championnats de Belgique A (R1)": 2.5,
-  "Poules des Championnats de Belgique A (R2)": 2.2,
-  "Champ. A de l'AFTT / Coupe / Champ. de Belgique (Jeunes, Vétérans, BCDE) (R3)": 1.5,
-  "Champ. BCDE / Tournoi série A / Champ. Prov. / Top 12 / Critériums (R4)": 1.2,
-  "Tournoi Série B & C (R5)": 1.0,
-  "Tournois vétérans (hors critérium, Champ. prov. et Belgique) (R9)": 0.65
+  "Tableau final des Championnats de Belgique A (R1)":2.5,
+  "Poules des Championnats de Belgique A (R2)":2.2,
+  "Champ. A de l'AFTT / Coupe / Champ. de Belgique (Jeunes, Vétérans, BCDE) (R3)":1.5,
+  "Champ. BCDE / Tournoi série A / Champ. Prov. / Top 12 / Critériums (R4)":1.2,
+  "Tournoi Série B & C (R5)":1.0,
+  "Tournois vétérans (hors critérium, Champ. prov. et Belgique) (R9)":0.65
 };
 
-function calculer(ptsA, ptsB, victoireA, typeComp, niveau) {
-  const diff = Math.abs(ptsA - ptsB);
-  const attendu = (ptsA >= ptsB && victoireA) || (ptsB >= ptsA && !victoireA);
-  const bareme = [
-    {max:25,  attendu:9,  inattendu:10},
-    {max:50,  attendu:8,  inattendu:12},
-    {max:75,  attendu:7,  inattendu:14},
-    {max:100, attendu:6,  inattendu:16},
-    {max:150, attendu:5,  inattendu:18},
-    {max:200, attendu:4,  inattendu:20},
-    {max:250, attendu:3,  inattendu:24},
-    {max:300, attendu:2,  inattendu:28},
-    {max:400, attendu:1,  inattendu:32},
-    {max:Infinity, attendu:0, inattendu:40},
+function calculer(ptsA,ptsB,victoireA,typeComp,niveau){
+  const diff=Math.abs(ptsA-ptsB);
+  const attendu=(ptsA>=ptsB&&victoireA)||(ptsB>=ptsA&&!victoireA);
+  const bareme=[
+    {max:25,attendu:9,inattendu:10},{max:50,attendu:8,inattendu:12},
+    {max:75,attendu:7,inattendu:14},{max:100,attendu:6,inattendu:16},
+    {max:150,attendu:5,inattendu:18},{max:200,attendu:4,inattendu:20},
+    {max:250,attendu:3,inattendu:24},{max:300,attendu:2,inattendu:28},
+    {max:400,attendu:1,inattendu:32},{max:Infinity,attendu:0,inattendu:40}
   ];
-  let pts = 0;
-  for (const t of bareme) {
-    if (diff <= t.max) { pts = attendu ? t.attendu : t.inattendu; break; }
-  }
-  const isIC = typeComp.includes("Interclubs");
-  const coef = isIC ? (COEFS_INTERCLUBS[niveau] || 1.0) : (COEFS_TOURNOIS[niveau] || 1.0);
-  const facteurPerte = isIC ? 0.80 : 0.50;
-  const ajuste = pts * coef;
-  return victoireA ? ajuste : -(ajuste * facteurPerte);
+  let pts=0;
+  for(const t of bareme){if(diff<=t.max){pts=attendu?t.attendu:t.inattendu;break;}}
+  const isIC=typeComp.includes("Interclubs");
+  const coef=isIC?(COEFS_INTERCLUBS[niveau]||1.0):(COEFS_TOURNOIS[niveau]||1.0);
+  const fp=isIC?0.80:0.50;
+  return victoireA?pts*coef:-(pts*coef*fp);
 }
 
-let profils = {};
-let joueurActif = null;
+let profils={}, joueurActif=null, nomEnEdition=null, nomASuppr=null;
 
-function load() {
-  try { profils = JSON.parse(localStorage.getItem("aftt_profils") || "{}"); } catch(e) { profils = {}; }
-  joueurActif = localStorage.getItem("aftt_actif") || null;
-  if (joueurActif && !profils[joueurActif]) joueurActif = null;
-  if (!joueurActif && Object.keys(profils).length > 0) joueurActif = Object.keys(profils)[0];
+function load(){
+  try{profils=JSON.parse(localStorage.getItem("aftt_profils")||"{}");}catch(e){profils={};}
+  joueurActif=localStorage.getItem("aftt_actif")||null;
+  if(joueurActif&&!profils[joueurActif])joueurActif=null;
+  if(!joueurActif&&Object.keys(profils).length>0)joueurActif=Object.keys(profils)[0];
+}
+function save(){
+  localStorage.setItem("aftt_profils",JSON.stringify(profils));
+  localStorage.setItem("aftt_actif",joueurActif||"");
+}
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
 }
 
-function save() {
-  localStorage.setItem("aftt_profils", JSON.stringify(profils));
-  localStorage.setItem("aftt_actif", joueurActif || "");
-}
-
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2200);
-}
-
-function updateStats() {
-  if (!joueurActif || !profils[joueurActif]) {
-    document.getElementById("statsName").textContent = "Aucun profil — créez-en un";
-    document.getElementById("statsPts").textContent = "—";
-    document.getElementById("statEvo").textContent = "0";
-    document.getElementById("statEvo").className = "val neu";
-    document.getElementById("statVirtuel").textContent = "—";
-    document.getElementById("statMatchs").textContent = "0";
+function updateStats(){
+  if(!joueurActif||!profils[joueurActif]){
+    document.getElementById("statsName").textContent="Aucun profil — créez-en un";
+    document.getElementById("statsPtsM").textContent="—";
+    document.getElementById("statEvoM").textContent="0";
+    document.getElementById("statEvoM").className="val neu";
+    document.getElementById("statVirtuelM").textContent="—";
+    document.getElementById("statMatchs").textContent="0";
+    document.getElementById("btnEditPts").style.display="none";
+    document.getElementById("blockDames").style.display="none";
+    document.getElementById("rowEvoD").style.display="none";
     return;
   }
-  const p = profils[joueurActif];
-  const ptsBase = p.genre === "Femme" ? p.points_dames : p.points_messieurs;
-  const matchs = p.matchs_du_mois || [];
-  const evo = matchs.reduce((s, m) => s + m.pts, 0);
-  const evoR = Math.round(evo * 100) / 100;
-  const virtuel = Math.round((ptsBase + evo) * 100) / 100;
+  const p=profils[joueurActif];
+  const isFemme=p.genre==="Femme";
+  const matchs=p.matchs_du_mois||[];
 
-  document.getElementById("statsName").textContent = "👤 " + joueurActif;
-  document.getElementById("statsPts").innerHTML = `${ptsBase} <span class="pts-base">pts officiels</span>`;
+  // Calculer évolution séparée messieurs / dames
+  const evos={points_messieurs:0,points_dames:0};
+  matchs.forEach(m=>{
+    const clef=m.clefPts||(isFemme?"points_dames":"points_messieurs");
+    evos[clef]+=m.pts;
+  });
+  const evoM=Math.round(evos.points_messieurs*100)/100;
+  const evoD=Math.round(evos.points_dames*100)/100;
+  const virtuelM=Math.round((p.points_messieurs+evoM)*100)/100;
+  const virtuelD=Math.round((p.points_dames+evoD)*100)/100;
 
-  const evoEl = document.getElementById("statEvo");
-  evoEl.textContent = (evoR >= 0 ? "+" : "") + evoR;
-  evoEl.className = "val " + (evoR > 0 ? "pos" : evoR < 0 ? "neg" : "neu");
+  document.getElementById("statsName").textContent="👤 "+joueurActif;
+  document.getElementById("btnEditPts").style.display="inline-block";
 
-  document.getElementById("statVirtuel").textContent = virtuel;
-  document.getElementById("statMatchs").textContent = matchs.length;
+  // Affichage points messieurs
+  document.getElementById("statsPtsM").innerHTML=`${p.points_messieurs} <span class="pts-base">pts Messieurs</span>`;
+  const evoMEl=document.getElementById("statEvoM");
+  evoMEl.textContent=(evoM>=0?"+":"")+evoM;
+  evoMEl.className="val "+(evoM>0?"pos":evoM<0?"neg":"neu");
+  document.getElementById("statVirtuelM").textContent=virtuelM;
+  document.getElementById("lblEvoM").textContent="Évol. Mess.";
+  document.getElementById("lblVirtuelM").textContent="Virtuel Mess.";
+
+  // Affichage points dames (uniquement si femme)
+  document.getElementById("blockDames").style.display=isFemme?"block":"none";
+  document.getElementById("rowEvoD").style.display=isFemme?"flex":"none";
+  if(isFemme){
+    document.getElementById("statsPtsD").innerHTML=`${p.points_dames} <span class="pts-base">pts Dames</span>`;
+    const evoDEl=document.getElementById("statEvoD");
+    evoDEl.textContent=(evoD>=0?"+":"")+evoD;
+    evoDEl.className="val "+(evoD>0?"pos":evoD<0?"neg":"neu");
+    document.getElementById("statVirtuelD").textContent=virtuelD;
+  }
+
+  document.getElementById("statMatchs").textContent=matchs.length;
 }
 
-function refreshMatchList() {
-  const p = joueurActif && profils[joueurActif];
-  const matchs = p ? (p.matchs_du_mois || []) : [];
-  const list = document.getElementById("listMatchs");
-  const empty = document.getElementById("emptyState");
-  list.innerHTML = "";
-  if (matchs.length === 0) { empty.style.display = "block"; return; }
-  empty.style.display = "none";
-  matchs.forEach((m, i) => {
-    const signe = m.pts >= 0 ? "+" : "";
-    const color = m.pts > 0 ? "var(--green)" : "var(--red)";
-    const statut = m.victoire ? "Victoire" : "Défaite";
-    list.innerHTML += `
-      <div class="match-card">
-        <div class="mc-left">
-          <div class="mc-comp">${m.type} · ${m.niveau.split('(')[0].trim()}</div>
-          <div class="mc-vs">${statut} vs <strong>${m.ptsAdv} pts</strong></div>
-        </div>
-        <div class="mc-pts" style="color:${color}">${signe}${m.pts}</div>
-      </div>`;
+function refreshMatchList(){
+  const p=joueurActif&&profils[joueurActif];
+  const matchs=p?(p.matchs_du_mois||[]):[];
+  const list=document.getElementById("listMatchs");
+  const empty=document.getElementById("emptyState");
+  list.innerHTML="";
+  if(matchs.length===0){empty.style.display="block";return;}
+  empty.style.display="none";
+  matchs.forEach((m,i)=>{
+    const signe=m.pts>=0?"+":"";
+    const color=m.pts>0?"var(--green)":"var(--red)";
+    const statut=m.victoire?"Victoire":"Défaite";
+    list.innerHTML+=`<div class="match-card">
+      <div class="mc-left">
+        <div class="mc-comp">${m.type} · ${m.niveau.split('(')[0].trim()}</div>
+        <div class="mc-vs">${statut} vs <strong>${m.ptsAdv} pts</strong></div>
+      </div>
+      <div class="mc-pts" style="color:${color}">${signe}${m.pts}</div>
+    </div>`;
   });
 }
 
-function onTypeChange() {
-  const type = document.getElementById("selType").value;
-  const selN = document.getElementById("selNiveau");
-  const opts = type.includes("Interclubs") ? OPTS_INTERCLUBS : OPTS_TOURNOIS;
-  selN.innerHTML = opts.map(o => `<option value="${o}">${o}</option>`).join("");
-  const nbMatchs = type === "Tournoi" ? 1 : (type === "Interclubs Dames" ? 3 : 4);
-  buildMatchInputs(nbMatchs);
+function onTypeChange(){
+  const type=document.getElementById("selType").value;
+  const selN=document.getElementById("selNiveau");
+  const opts=type.includes("Interclubs")?OPTS_INTERCLUBS:OPTS_TOURNOIS;
+  selN.innerHTML=opts.map(o=>`<option value="${o}">${o}</option>`).join("");
+  const nb=type==="Tournoi"?1:(type==="Interclubs Dames"?3:4);
+  const isTournoi=type==="Tournoi";
+  document.getElementById("fieldTournoiGenre").style.display=isTournoi?"block":"none";
+  if(isTournoi&&joueurActif&&profils[joueurActif]){
+    document.getElementById("selTournoiGenre").value=profils[joueurActif].genre==="Femme"?"Dames":"Messieurs";
+  }
+  buildMatchInputs(nb);
 }
-
-function buildMatchInputs(n) {
-  const c = document.getElementById("matchInputs");
-  c.innerHTML = "";
-  for (let i = 0; i < n; i++) {
-    c.innerHTML += `
-      <div class="match-row">
-        <span class="match-num">${i+1}</span>
-        <input type="number" id="pts_${i}" placeholder="Points adversaire" min="0">
-        <button class="toggle-btn win" id="btn_${i}" onclick="toggleResult(${i})">Victoire</button>
-      </div>`;
+function buildMatchInputs(n){
+  const c=document.getElementById("matchInputs"); c.innerHTML="";
+  for(let i=0;i<n;i++){
+    c.innerHTML+=`<div class="match-row">
+      <span class="match-num">${i+1}</span>
+      <input type="number" id="pts_${i}" placeholder="Points adversaire" min="0">
+      <button class="toggle-btn win" id="btn_${i}" onclick="toggleResult(${i})">Victoire</button>
+    </div>`;
   }
 }
-
-function toggleResult(i) {
-  const btn = document.getElementById("btn_" + i);
-  if (btn.classList.contains("win")) {
-    btn.classList.remove("win"); btn.classList.add("lose"); btn.textContent = "Défaite";
-  } else {
-    btn.classList.remove("lose"); btn.classList.add("win"); btn.textContent = "Victoire";
-  }
+function toggleResult(i){
+  const btn=document.getElementById("btn_"+i);
+  if(btn.classList.contains("win")){btn.classList.replace("win","lose");btn.textContent="Défaite";}
+  else{btn.classList.replace("lose","win");btn.textContent="Victoire";}
 }
 
-function enregistrer() {
-  if (!joueurActif) { openProfilsModal(); return; }
-  const p = profils[joueurActif];
-  const type = document.getElementById("selType").value;
-  const niveau = document.getElementById("selNiveau").value;
-  const nbMatchs = type === "Tournoi" ? 1 : (type === "Interclubs Dames" ? 3 : 4);
-  const ptsJoueur = (type === "Interclubs Dames" && p.genre === "Femme") ? p.points_dames : p.points_messieurs;
-
-  if (!p.matchs_du_mois) p.matchs_du_mois = [];
-  let count = 0;
-  for (let i = 0; i < nbMatchs; i++) {
-    const raw = document.getElementById("pts_" + i).value.trim();
-    if (!raw) continue;
-    const ptsAdv = parseFloat(raw.replace(",", "."));
-    if (isNaN(ptsAdv)) continue;
-    const victoire = document.getElementById("btn_" + i).classList.contains("win");
-    const gain = calculer(ptsJoueur, ptsAdv, victoire, type, niveau);
-    p.matchs_du_mois.push({
-      type, niveau, ptsAdv, victoire, pts: Math.round(gain * 100) / 100
-    });
-    document.getElementById("pts_" + i).value = "";
-    document.getElementById("btn_" + i).classList.remove("lose");
-    document.getElementById("btn_" + i).classList.add("win");
-    document.getElementById("btn_" + i).textContent = "Victoire";
+function enregistrer(){
+  if(!joueurActif){openProfilsModal();return;}
+  const p=profils[joueurActif];
+  const type=document.getElementById("selType").value;
+  const niveau=document.getElementById("selNiveau").value;
+  const nb=type==="Tournoi"?1:(type==="Interclubs Dames"?3:4);
+  // Déterminer quels points utiliser selon type et tableau joué
+  let useDames=false;
+  if(type==="Interclubs Dames") useDames=true;
+  else if(type==="Tournoi") useDames=(document.getElementById("selTournoiGenre").value==="Dames");
+  // Pour un homme, tout va toujours dans points_messieurs
+  // Pour une femme, on suit le tableau joué
+  const clefPts=(useDames&&p.genre==="Femme")?"points_dames":"points_messieurs";
+  const ptsJ=p[clefPts];
+  if(!p.matchs_du_mois)p.matchs_du_mois=[];
+  let count=0;
+  for(let i=0;i<nb;i++){
+    const raw=document.getElementById("pts_"+i).value.trim();
+    if(!raw)continue;
+    const ptsAdv=parseFloat(raw.replace(",","."));
+    if(isNaN(ptsAdv))continue;
+    const victoire=document.getElementById("btn_"+i).classList.contains("win");
+    const gain=calculer(ptsJ,ptsAdv,victoire,type,niveau);
+    p.matchs_du_mois.push({type,niveau,ptsAdv,victoire,pts:Math.round(gain*100)/100,clefPts});
+    document.getElementById("pts_"+i).value="";
+    const btn=document.getElementById("btn_"+i);
+    btn.classList.replace("lose","win"); btn.textContent="Victoire";
     count++;
   }
-  if (count === 0) { showToast("Aucun adversaire saisi"); return; }
-  save(); updateStats(); refreshMatchList();
-  showToast(count === 1 ? "1 match enregistré ✓" : `${count} matchs enregistrés ✓`);
+  if(count===0){showToast("Aucun adversaire saisi");return;}
+  save();updateStats();refreshMatchList();
+  showToast(count===1?"1 match enregistré ✓":`${count} matchs enregistrés ✓`);
 }
 
-function annulerDernier() {
-  if (!joueurActif) return;
-  const p = profils[joueurActif];
-  if (!p.matchs_du_mois || p.matchs_du_mois.length === 0) { showToast("Aucun match à annuler"); return; }
+function annulerDernier(){
+  if(!joueurActif)return;
+  const p=profils[joueurActif];
+  if(!p.matchs_du_mois||p.matchs_du_mois.length===0){showToast("Aucun match à annuler");return;}
   p.matchs_du_mois.pop();
-  save(); updateStats(); refreshMatchList();
+  save();updateStats();refreshMatchList();
   showToast("Dernier match annulé");
 }
 
-function confirmCloture() {
-  if (!joueurActif) return;
-  const p = profils[joueurActif];
-  const matchs = p.matchs_du_mois || [];
-  const evo = matchs.reduce((s, m) => s + m.pts, 0);
-  const evoR = Math.round(evo * 100) / 100;
-  const ptsBase = p.genre === "Femme" ? p.points_dames : p.points_messieurs;
-  const nouveau = Math.round((ptsBase + evo) * 100) / 100;
-  const signe = evoR >= 0 ? "+" : "";
-  document.getElementById("clotureResume").innerHTML =
-    `Base officielle : <strong>${ptsBase} pts</strong><br>
-     Évolution du mois : <strong style="color:${evoR>=0?'var(--green)':'var(--red)'};">${signe}${evoR} pts</strong><br>
-     Nouveau total : <strong>${nouveau} pts</strong>`;
+function confirmCloture(){
+  if(!joueurActif)return;
+  const p=profils[joueurActif];
+  const matchs=p.matchs_du_mois||[];
+  const evos={points_messieurs:0,points_dames:0};
+  matchs.forEach(m=>{
+    const clef=m.clefPts||(p.genre==="Femme"?"points_dames":"points_messieurs");
+    evos[clef]+=m.pts;
+  });
+  const evoM=Math.round(evos.points_messieurs*100)/100;
+  const evoD=Math.round(evos.points_dames*100)/100;
+  const nvM=Math.round((p.points_messieurs+evoM)*100)/100;
+  const nvD=Math.round((p.points_dames+evoD)*100)/100;
+  const fmt=(v)=>(v>=0?"+":"")+v;
+  let html=``;
+  if(evoM!==0||p.genre!=="Femme"){
+    html+=`Points messieurs : <strong>${p.points_messieurs}</strong> → <strong>${nvM} pts</strong> <span style="color:${evoM>=0?'var(--green)':'var(--red)'};">(${fmt(evoM)})</span><br>`;
+  }
+  if(p.genre==="Femme"){
+    html+=`Points dames : <strong>${p.points_dames}</strong> → <strong>${nvD} pts</strong> <span style="color:${evoD>=0?'var(--green)':'var(--red)'};">(${fmt(evoD)})</span>`;
+  }
+  document.getElementById("clotureResume").innerHTML=html;
   openModal("modalCloture");
 }
-
-function cloturerMois() {
-  if (!joueurActif) return;
-  const p = profils[joueurActif];
-  const matchs = p.matchs_du_mois || [];
-  const evo = matchs.reduce((s, m) => s + m.pts, 0);
-  const clef = p.genre === "Femme" ? "points_dames" : "points_messieurs";
-  p[clef] = Math.round((p[clef] + evo) * 100) / 100;
-  p.matchs_du_mois = [];
-  save(); closeModal("modalCloture"); updateStats(); refreshMatchList();
+function cloturerMois(){
+  if(!joueurActif)return;
+  const p=profils[joueurActif];
+  const matchs=p.matchs_du_mois||[];
+  // Grouper les points par clef (points_messieurs / points_dames)
+  const evos={points_messieurs:0, points_dames:0};
+  matchs.forEach(m=>{
+    const clef=m.clefPts||(p.genre==="Femme"?"points_dames":"points_messieurs");
+    evos[clef]+=m.pts;
+  });
+  if(evos.points_messieurs!==0)
+    p.points_messieurs=Math.round((p.points_messieurs+evos.points_messieurs)*100)/100;
+  if(evos.points_dames!==0)
+    p.points_dames=Math.round((p.points_dames+evos.points_dames)*100)/100;
+  p.matchs_du_mois=[];
+  save();closeModal("modalCloture");updateStats();refreshMatchList();
   showToast("Mois clôturé ✓ Points mis à jour");
 }
 
-function openProfilsModal() {
-  const list = document.getElementById("listProfils");
-  list.innerHTML = "";
-  Object.keys(profils).forEach(nom => {
-    const p = profils[nom];
-    const pts = p.genre === "Femme" ? p.points_dames : p.points_messieurs;
-    const isActive = nom === joueurActif;
-    list.innerHTML += `
-      <div class="profil-item ${isActive ? 'active-profil' : ''}" onclick="changerProfil('${nom.replace(/'/g,"\\'")}')">
-        <div>
-          <div class="pi-name">${nom}</div>
-          <div class="pi-pts">${pts} pts · ${p.genre}</div>
-        </div>
-        ${isActive ? '<span class="pi-check">✓</span>' : ''}
-      </div>`;
-  });
-  if (Object.keys(profils).length === 0) {
-    list.innerHTML = '<p style="color:var(--muted);font-size:14px;text-align:center;padding:16px 0;">Aucun profil. Créez-en un !</p>';
+/* ---- MODIFIER LES POINTS ---- */
+function openEditPoints(){
+  if(!joueurActif)return;
+  const p=profils[joueurActif];
+  document.getElementById("editPtsM").value=p.points_messieurs;
+  document.getElementById("editPtsD").value=p.points_dames;
+  document.getElementById("editFieldPtsD").style.display=p.genre==="Femme"?"block":"none";
+  openModal("modalEditPts");
+}
+function sauvegarderPoints(){
+  if(!joueurActif)return;
+  const p=profils[joueurActif];
+  const ptsM=parseFloat(document.getElementById("editPtsM").value)||0;
+  const ptsD=parseFloat(document.getElementById("editPtsD").value)||0;
+  p.points_messieurs=ptsM;
+  if(p.genre==="Femme")p.points_dames=ptsD;
+  save();closeModal("modalEditPts");updateStats();
+  showToast("Points mis à jour ✓");
+}
+
+/* ---- GESTION PROFILS ---- */
+function openProfilsModal(){
+  const list=document.getElementById("listProfils");
+  list.innerHTML="";
+  const noms=Object.keys(profils);
+  if(noms.length===0){
+    list.innerHTML='<p style="color:var(--muted);font-size:14px;text-align:center;padding:16px 0;">Aucun profil. Créez-en un !</p>';
+  } else {
+    noms.forEach(nom=>{
+      const p=profils[nom];
+      const pts=p.genre==="Femme"?p.points_dames:p.points_messieurs;
+      const isActive=nom===joueurActif;
+      const safeNom=nom.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+      list.innerHTML+=`
+        <div class="profil-item ${isActive?'active-profil':''}" id="pi_${safeNom}">
+          <div class="profil-item-top" onclick="toggleProfilActions('${safeNom}')">
+            <div>
+              <div class="pi-name">${nom}${isActive?' <span style="font-size:11px;color:var(--accent);">(actif)</span>':''}</div>
+              <div class="pi-pts">${pts} pts · ${p.genre}</div>
+            </div>
+            <span style="color:var(--muted);font-size:18px;">›</span>
+          </div>
+          <div class="profil-actions" id="pa_${safeNom}">
+            ${!isActive?`<button class="btn-action select" onclick="changerProfil('${safeNom}')">✓ Activer</button>`:''}
+            <button class="btn-action edit" onclick="ouvrirEditionProfil('${safeNom}')">✏️ Modifier</button>
+            <button class="btn-action del" onclick="demanderSuppression('${safeNom}')">🗑 Supprimer</button>
+          </div>
+        </div>`;
+    });
   }
   openModal("modalProfils");
 }
 
-function changerProfil(nom) {
-  joueurActif = nom;
-  const p = profils[nom];
-  document.getElementById("selType").value = p.genre === "Femme" ? "Interclubs Dames" : "Interclubs Messieurs";
-  onTypeChange(); save(); updateStats(); refreshMatchList();
-  closeModal("modalProfils");
-  showToast("Profil : " + nom);
+function toggleProfilActions(nom){
+  const pa=document.getElementById("pa_"+nom);
+  if(pa)pa.classList.toggle("open");
 }
 
-function openCreerProfil() {
+function changerProfil(nom){
+  joueurActif=nom;
+  const p=profils[nom];
+  document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
+  onTypeChange();save();updateStats();refreshMatchList();
   closeModal("modalProfils");
-  document.getElementById("inputNom").value = "";
-  document.getElementById("inputPtsM").value = "1150";
-  document.getElementById("inputPtsD").value = "0";
-  document.getElementById("inputGenre").value = "Homme";
-  document.getElementById("fieldPtsD").style.display = "none";
-  document.getElementById("inputGenre").onchange = function() {
-    document.getElementById("fieldPtsD").style.display = this.value === "Femme" ? "block" : "none";
-  };
+  showToast("Profil : "+nom);
+}
+
+/* ---- CRÉER / ÉDITER PROFIL ---- */
+function togglePtsDames(){
+  const genre=document.getElementById("inputGenre").value;
+  document.getElementById("fieldPtsD").style.display=genre==="Femme"?"block":"none";
+}
+
+function openCreerProfil(){
+  nomEnEdition=null;
+  closeModal("modalProfils");
+  document.getElementById("modalCreerTitre").textContent="Nouveau profil";
+  document.getElementById("btnValiderProfil").textContent="Créer";
+  document.getElementById("inputNom").value="";
+  document.getElementById("inputNom").disabled=false;
+  document.getElementById("inputPtsM").value="1150";
+  document.getElementById("inputPtsD").value="0";
+  document.getElementById("inputGenre").value="Homme";
+  document.getElementById("fieldPtsD").style.display="none";
   openModal("modalCreer");
 }
 
-function creerProfil() {
-  const nom = document.getElementById("inputNom").value.trim();
-  if (!nom) { showToast("Entrez un nom"); return; }
-  const genre = document.getElementById("inputGenre").value;
-  const ptsM = parseFloat(document.getElementById("inputPtsM").value) || 0;
-  const ptsD = parseFloat(document.getElementById("inputPtsD").value) || 0;
-  profils[nom] = { genre, points_messieurs: ptsM, points_dames: ptsD, matchs_du_mois: [] };
-  joueurActif = nom;
-  document.getElementById("selType").value = genre === "Femme" ? "Interclubs Dames" : "Interclubs Messieurs";
-  onTypeChange(); save(); updateStats(); refreshMatchList();
-  closeModal("modalCreer");
-  showToast("Profil créé : " + nom);
+function ouvrirEditionProfil(nom){
+  nomEnEdition=nom;
+  const p=profils[nom];
+  closeModal("modalProfils");
+  document.getElementById("modalCreerTitre").textContent="Modifier le profil";
+  document.getElementById("btnValiderProfil").textContent="Enregistrer";
+  document.getElementById("inputNom").value=nom;
+  document.getElementById("inputNom").disabled=true;
+  document.getElementById("inputGenre").value=p.genre;
+  document.getElementById("inputPtsM").value=p.points_messieurs;
+  document.getElementById("inputPtsD").value=p.points_dames;
+  document.getElementById("fieldPtsD").style.display=p.genre==="Femme"?"block":"none";
+  openModal("modalCreer");
 }
 
-function openModal(id) { document.getElementById(id).classList.add("active"); }
-function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+function validerProfil(){
+  if(nomEnEdition){
+    // ÉDITION
+    const p=profils[nomEnEdition];
+    p.genre=document.getElementById("inputGenre").value;
+    p.points_messieurs=parseFloat(document.getElementById("inputPtsM").value)||0;
+    p.points_dames=parseFloat(document.getElementById("inputPtsD").value)||0;
+    save();closeModal("modalCreer");updateStats();
+    showToast("Profil modifié ✓");
+    nomEnEdition=null;
+  } else {
+    // CRÉATION
+    const nom=document.getElementById("inputNom").value.trim();
+    if(!nom){showToast("Entrez un nom");return;}
+    const genre=document.getElementById("inputGenre").value;
+    const ptsM=parseFloat(document.getElementById("inputPtsM").value)||0;
+    const ptsD=parseFloat(document.getElementById("inputPtsD").value)||0;
+    profils[nom]={genre,points_messieurs:ptsM,points_dames:ptsD,matchs_du_mois:[]};
+    joueurActif=nom;
+    document.getElementById("selType").value=genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
+    onTypeChange();save();updateStats();refreshMatchList();
+    closeModal("modalCreer");
+    showToast("Profil créé : "+nom);
+  }
+}
 
-function showTab(tab) {
-  document.getElementById("tabSaisie").style.display = tab === "saisie" ? "block" : "none";
-  document.getElementById("tabMois").style.display = tab === "mois" ? "block" : "none";
-  document.querySelectorAll(".tab").forEach((t, i) => {
-    t.classList.toggle("active", (i === 0 && tab === "saisie") || (i === 1 && tab === "mois"));
+/* ---- SUPPRIMER PROFIL ---- */
+function demanderSuppression(nom){
+  nomASuppr=nom;
+  document.getElementById("nomASupprimer").textContent=nom;
+  closeModal("modalProfils");
+  openModal("modalSupprimer");
+}
+function confirmerSuppression(){
+  if(!nomASuppr)return;
+  delete profils[nomASuppr];
+  if(joueurActif===nomASuppr){
+    const restants=Object.keys(profils);
+    joueurActif=restants.length>0?restants[0]:null;
+  }
+  nomASuppr=null;
+  save();closeModal("modalSupprimer");updateStats();refreshMatchList();
+  showToast("Profil supprimé");
+  if(joueurActif){
+    const p=profils[joueurActif];
+    document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
+    onTypeChange();
+  }
+}
+
+function openModal(id){document.getElementById(id).classList.add("active");}
+function closeModal(id){document.getElementById(id).classList.remove("active");}
+
+function showTab(tab){
+  document.getElementById("tabSaisie").style.display=tab==="saisie"?"block":"none";
+  document.getElementById("tabMois").style.display=tab==="mois"?"block":"none";
+  document.querySelectorAll(".tab").forEach((t,i)=>{
+    t.classList.toggle("active",(i===0&&tab==="saisie")||(i===1&&tab==="mois"));
   });
-  if (tab === "mois") refreshMatchList();
+  if(tab==="mois")refreshMatchList();
 }
 
-document.querySelectorAll(".modal-overlay").forEach(o => {
-  o.addEventListener("click", e => { if (e.target === o) o.classList.remove("active"); });
+document.querySelectorAll(".modal-overlay").forEach(o=>{
+  o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("active");});
 });
 
-load();
-onTypeChange();
-updateStats();
-if (Object.keys(profils).length === 0) {
-  setTimeout(() => openCreerProfil(), 300);
-}
+load(); onTypeChange(); updateStats();
+if(Object.keys(profils).length===0)setTimeout(()=>openCreerProfil(),300);
 </script>
 </body>
 </html>
