@@ -893,9 +893,10 @@ function selectionnerProfil(nom){
 }
 
 function openCreerProfilDepuisAccueil(){
-  openCreerProfil();
-  // Override: après création, aller dans l'app directement
-  // (géré dans validerProfil qui appelle afficherApp)
+  // Afficher l'app d'abord pour que la modal soit visible
+  document.getElementById("pageAccueil").style.display="none";
+  document.getElementById("appPrincipale").style.display="block";
+  setTimeout(()=>openCreerProfil(), 50);
 }
 
 /* ---- INIT ---- */
