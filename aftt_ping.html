@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;AFTT Ping&quot;,&quot;short_name&quot;:&quot;Ping&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#0f1117&quot;,&quot;theme_color&quot;:&quot;#0f1117&quot;}">
+<title>AFTT · Mon Compteur Ping</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2336;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #eef0f7;
+    --muted: #8b90a8;
+    --accent: #4f8ef7;
+    --accent2: #3a6fd4;
+    --green: #3ecf8e;
+    --red: #f76e6e;
+    --orange: #f7a84f;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px 10px;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .header h1 span { color: var(--accent); }
+  .btn-ghost {
+    background: none; border: 1px solid var(--border2);
+    color: var(--muted); border-radius: 20px;
+    padding: 5px 13px; font-size: 13px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-ghost:active { background: var(--surface2); }
+
+  /* STATS CARD */
+  .stats-card {
+    margin: 14px 14px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .stats-name { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .stats-pts { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+  .stats-pts .pts-base { color: var(--muted); font-size: 16px; font-weight: 400; }
+  .stats-row { display: flex; gap: 10px; margin-top: 12px; }
+  .stat-pill {
+    flex: 1; background: var(--surface2);
+    border-radius: var(--radius-sm); padding: 8px 10px; text-align: center;
+  }
+  .stat-pill .val { font-size: 17px; font-weight: 600; }
+  .stat-pill .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .val.pos { color: var(--green); }
+  .val.neg { color: var(--red); }
+  .val.neu { color: var(--text); }
+
+  /* TABS */
+  .tabs { display: flex; margin: 14px 14px 0; gap: 6px; }
+  .tab {
+    flex: 1; padding: 10px; text-align: center;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: 14px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* SECTION */
+  .section { padding: 14px; }
+
+  /* FORM */
+  .field { margin-bottom: 12px; }
+  .field label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  select, input[type="number"], input[type="text"] {
+    width: 100%; background: var(--surface); border: 1px solid var(--border2);
+    color: var(--text); border-radius: var(--radius-sm); padding: 12px 14px;
+    font-size: 16px; outline: none; appearance: none; -webkit-appearance: none;
+    transition: border 0.15s;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b90a8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  /* MATCH ROWS */
+  .match-inputs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .match-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px;
+  }
+  .match-row .match-num { font-size: 12px; color: var(--muted); min-width: 22px; font-weight: 600; }
+  .match-row input {
+    flex: 1; border: none; background: var(--surface2);
+    border-radius: 6px; padding: 8px 10px; font-size: 15px;
+    border: 1px solid var(--border);
+  }
+  .toggle-btn {
+    border: 1px solid var(--border2); border-radius: 20px;
+    padding: 7px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    min-width: 84px; text-align: center;
+  }
+  .toggle-btn.win { background: rgba(62,207,142,0.15); border-color: var(--green); color: var(--green); }
+  .toggle-btn.lose { background: rgba(247,110,110,0.12); border-color: var(--red); color: var(--red); }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%; padding: 15px; background: var(--accent);
+    border: none; border-radius: var(--radius); color: #fff;
+    font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-primary:active { background: var(--accent2); transform: scale(0.98); }
+  .btn-secondary {
+    width: 100%; padding: 12px; background: var(--surface);
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    color: var(--text); font-size: 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-secondary:active { background: var(--surface2); }
+  .btn-danger {
+    width: 100%; padding: 12px; background: rgba(247,110,110,0.1);
+    border: 1px solid rgba(247,110,110,0.3); border-radius: var(--radius);
+    color: var(--red); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-danger:active { background: rgba(247,110,110,0.2); }
+
+  /* MATCH LIST */
+  .match-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .match-card .mc-left { flex: 1; }
+  .match-card .mc-comp { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .match-card .mc-vs { font-size: 14px; font-weight: 500; }
+  .match-card .mc-pts { font-size: 18px; font-weight: 700; }
+  .empty-state { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 20px; }
+
+  /* MODAL / OVERLAY */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 480px; padding: 24px 20px 40px;
+    border: 1px solid var(--border);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .modal .field { margin-bottom: 14px; }
+
+  /* PROFIL SWITCHER */
+  .profil-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .profil-item:active { background: var(--surface); }
+  .profil-item.active-profil { border-color: var(--accent); }
+  .profil-item .pi-name { font-weight: 600; font-size: 15px; }
+  .profil-item .pi-pts { font-size: 13px; color: var(--muted); }
+  .profil-item .pi-check { color: var(--accent); font-size: 18px; }
+
+  .sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--surface2); color: var(--muted); margin-right: 4px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 10px 20px; font-size: 14px; font-weight: 500;
+    z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>AFTT <span>·</span> Ping</h1>
+    <button class="btn-ghost" onclick="openProfilsModal()">👤 Profils</button>
+  </div>
+</div>
+
+<div class="stats-card" id="statsCard">
+  <div class="stats-name" id="statsName">Aucun profil</div>
+  <div class="stats-pts" id="statsPts">—</div>
+  <div class="stats-row">
+    <div class="stat-pill">
+      <div class="val neu" id="statEvo">0</div>
+      <div class="lbl">Évolution</div>
+    </div>
+    <div class="stat-pill">
+      <div class="val neu" id="statVirtuel">—</div>
+      <div class="lbl">Virtuel</div>
+    </div>
+    <div class="stat-pill">
+      <div class="val neu" id="statMatchs">0</div>
+      <div class="lbl">Matchs</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('saisie')">Saisie</div>
+  <div class="tab" onclick="showTab('mois')">Mon mois</div>
+</div>
+
+<!-- TAB SAISIE -->
+<div class="section" id="tabSaisie">
+  <div class="field">
+    <label>Type de compétition</label>
+    <select id="selType" onchange="onTypeChange()">
+      <option value="Interclubs Messieurs">Interclubs Messieurs</option>
+      <option value="Interclubs Dames">Interclubs Dames</option>
+      <option value="Tournoi">Tournoi</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Division / Catégorie</label>
+    <select id="selNiveau"></select>
+  </div>
+  <div class="field">
+    <label>Résultats</label>
+    <div class="match-inputs" id="matchInputs"></div>
+  </div>
+  <button class="btn-primary" onclick="enregistrer()">Enregistrer la rencontre</button>
+</div>
+
+<!-- TAB MON MOIS -->
+<div class="section" id="tabMois" style="display:none;">
+  <div id="listMatchs"></div>
+  <div id="emptyState" class="empty-state" style="display:none;">
+    Aucun match ce mois-ci.<br>Commencez à saisir vos résultats !
+  </div>
+  <hr class="sep">
+  <button class="btn-secondary" style="margin-bottom:8px;" onclick="annulerDernier()">↩ Annuler le dernier match</button>
+  <button class="btn-danger" onclick="confirmCloture()">🔒 Clôturer le mois</button>
+</div>
+
+<!-- MODAL PROFILS -->
+<div class="modal-overlay" id="modalProfils">
+  <div class="modal">
+    <h2>Profils</h2>
+    <div id="listProfils"></div>
+    <hr class="sep">
+    <button class="btn-primary" onclick="openCreerProfil()">+ Nouveau profil</button>
+    <br><br>
+    <button class="btn-secondary" onclick="closeModal('modalProfils')">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL CRÉER PROFIL -->
+<div class="modal-overlay" id="modalCreer">
+  <div class="modal">
+    <h2>Nouveau profil</h2>
+    <div class="field">
+      <label>Nom & Prénom</label>
+      <input type="text" id="inputNom" placeholder="Ex: Jean Dupont">
+    </div>
+    <div class="field">
+      <label>Genre</label>
+      <select id="inputGenre">
+        <option value="Homme">Homme</option>
+        <option value="Femme">Femme</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Points Messieurs (classement provincial)</label>
+      <input type="number" id="inputPtsM" placeholder="1150" value="1150">
+    </div>
+    <div class="field" id="fieldPtsD" style="display:none;">
+      <label>Points Dames (si applicable)</label>
+      <input type="number" id="inputPtsD" placeholder="0" value="0">
+    </div>
+    <button class="btn-primary" onclick="creerProfil()" style="margin-bottom:10px;">Créer</button>
+    <button class="btn-secondary" onclick="closeModal('modalCreer')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL CLOTURE -->
+<div class="modal-overlay" id="modalCloture">
+  <div class="modal">
+    <h2>Clôturer le mois ?</h2>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:18px; line-height:1.6;">
+      Les points d'évolution seront ajoutés à votre base officielle et la liste de matchs sera réinitialisée.
+    </p>
+    <div id="clotureResume" style="background:var(--surface2); border-radius:var(--radius-sm); padding:14px; margin-bottom:18px; font-size:15px;"></div>
+    <button class="btn-danger" onclick="cloturerMois()" style="margin-bottom:10px;">Confirmer la clôture</button>
+    <button class="btn-secondary" onclick="closeModal('modalCloture')">Annuler</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const OPTS_INTERCLUBS = [
+  "Autres provinciales (R8)",
+  "P1 (R7)",
+  "N3 & IWB & Landelijk (R6)",
+  "N2 (R5)",
+  "N1 (R4)",
+  "SuperDivision (R3)",
+  "Interclubs vétérans (R9)",
+  "Compétitions promotionnelles (R10)"
+];
+const OPTS_TOURNOIS = [
+  "Tournoi Série B & C (R5)",
+  "Champ. BCDE / Tournoi série A / Champ. Prov. / Top 12 / Critériums (R4)",
+  "Champ. A de l'AFTT / Coupe / Champ. de Belgique (Jeunes, Vétérans, BCDE) (R3)",
+  "Poules des Championnats de Belgique A (R2)",
+  "Tableau final des Championnats de Belgique A (R1)",
+  "Tournois vétérans (hors critérium, Champ. prov. et Belgique) (R9)"
+];
+
+const COEFS_INTERCLUBS = {
+  "SuperDivision (R3)": 1.5, "N1 (R4)": 1.2, "N2 (R5)": 1.0,
+  "N3 & IWB & Landelijk (R6)": 0.95, "P1 (R7)": 0.9,
+  "Autres provinciales (R8)": 0.85, "Interclubs vétérans (R9)": 0.65,
+  "Compétitions promotionnelles (R10)": 0.35
+};
+const COEFS_TOURNOIS = {
+  "Tableau final des Championnats de Belgique A (R1)": 2.5,
+  "Poules des Championnats de Belgique A (R2)": 2.2,
+  "Champ. A de l'AFTT / Coupe / Champ. de Belgique (Jeunes, Vétérans, BCDE) (R3)": 1.5,
+  "Champ. BCDE / Tournoi série A / Champ. Prov. / Top 12 / Critériums (R4)": 1.2,
+  "Tournoi Série B & C (R5)": 1.0,
+  "Tournois vétérans (hors critérium, Champ. prov. et Belgique) (R9)": 0.65
+};
+
+function calculer(ptsA, ptsB, victoireA, typeComp, niveau) {
+  const diff = Math.abs(ptsA - ptsB);
+  const attendu = (ptsA >= ptsB && victoireA) || (ptsB >= ptsA && !victoireA);
+  const bareme = [
+    {max:25,  attendu:9,  inattendu:10},
+    {max:50,  attendu:8,  inattendu:12},
+    {max:75,  attendu:7,  inattendu:14},
+    {max:100, attendu:6,  inattendu:16},
+    {max:150, attendu:5,  inattendu:18},
+    {max:200, attendu:4,  inattendu:20},
+    {max:250, attendu:3,  inattendu:24},
+    {max:300, attendu:2,  inattendu:28},
+    {max:400, attendu:1,  inattendu:32},
+    {max:Infinity, attendu:0, inattendu:40},
+  ];
+  let pts = 0;
+  for (const t of bareme) {
+    if (diff <= t.max) { pts = attendu ? t.attendu : t.inattendu; break; }
+  }
+  const isIC = typeComp.includes("Interclubs");
+  const coef = isIC ? (COEFS_INTERCLUBS[niveau] || 1.0) : (COEFS_TOURNOIS[niveau] || 1.0);
+  const facteurPerte = isIC ? 0.80 : 0.50;
+  const ajuste = pts * coef;
+  return victoireA ? ajuste : -(ajuste * facteurPerte);
+}
+
+let profils = {};
+let joueurActif = null;
+
+function load() {
+  try { profils = JSON.parse(localStorage.getItem("aftt_profils") || "{}"); } catch(e) { profils = {}; }
+  joueurActif = localStorage.getItem("aftt_actif") || null;
+  if (joueurActif && !profils[joueurActif]) joueurActif = null;
+  if (!joueurActif && Object.keys(profils).length > 0) joueurActif = Object.keys(profils)[0];
+}
+
+function save() {
+  localStorage.setItem("aftt_profils", JSON.stringify(profils));
+  localStorage.setItem("aftt_actif", joueurActif || "");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function updateStats() {
+  if (!joueurActif || !profils[joueurActif]) {
+    document.getElementById("statsName").textContent = "Aucun profil — créez-en un";
+    document.getElementById("statsPts").textContent = "—";
+    document.getElementById("statEvo").textContent = "0";
+    document.getElementById("statEvo").className = "val neu";
+    document.getElementById("statVirtuel").textContent = "—";
+    document.getElementById("statMatchs").textContent = "0";
+    return;
+  }
+  const p = profils[joueurActif];
+  const ptsBase = p.genre === "Femme" ? p.points_dames : p.points_messieurs;
+  const matchs = p.matchs_du_mois || [];
+  const evo = matchs.reduce((s, m) => s + m.pts, 0);
+  const evoR = Math.round(evo * 100) / 100;
+  const virtuel = Math.round((ptsBase + evo) * 100) / 100;
+
+  document.getElementById("statsName").textContent = "👤 " + joueurActif;
+  document.getElementById("statsPts").innerHTML = `${ptsBase} <span class="pts-base">pts officiels</span>`;
+
+  const evoEl = document.getElementById("statEvo");
+  evoEl.textContent = (evoR >= 0 ? "+" : "") + evoR;
+  evoEl.className = "val " + (evoR > 0 ? "pos" : evoR < 0 ? "neg" : "neu");
+
+  document.getElementById("statVirtuel").textContent = virtuel;
+  document.getElementById("statMatchs").textContent = matchs.length;
+}
+
+function refreshMatchList() {
+  const p = joueurActif && profils[joueurActif];
+  const matchs = p ? (p.matchs_du_mois || []) : [];
+  const list = document.getElementById("listMatchs");
+  const empty = document.getElementById("emptyState");
+  list.innerHTML = "";
+  if (matchs.length === 0) { empty.style.display = "block"; return; }
+  empty.style.display = "none";
+  matchs.forEach((m, i) => {
+    const signe = m.pts >= 0 ? "+" : "";
+    const color = m.pts > 0 ? "var(--green)" : "var(--red)";
+    const statut = m.victoire ? "Victoire" : "Défaite";
+    list.innerHTML += `
+      <div class="match-card">
+        <div class="mc-left">
+          <div class="mc-comp">${m.type} · ${m.niveau.split('(')[0].trim()}</div>
+          <div class="mc-vs">${statut} vs <strong>${m.ptsAdv} pts</strong></div>
+        </div>
+        <div class="mc-pts" style="color:${color}">${signe}${m.pts}</div>
+      </div>`;
+  });
+}
+
+function onTypeChange() {
+  const type = document.getElementById("selType").value;
+  const selN = document.getElementById("selNiveau");
+  const opts = type.includes("Interclubs") ? OPTS_INTERCLUBS : OPTS_TOURNOIS;
+  selN.innerHTML = opts.map(o => `<option value="${o}">${o}</option>`).join("");
+  const nbMatchs = type === "Tournoi" ? 1 : (type === "Interclubs Dames" ? 3 : 4);
+  buildMatchInputs(nbMatchs);
+}
+
+function buildMatchInputs(n) {
+  const c = document.getElementById("matchInputs");
+  c.innerHTML = "";
+  for (let i = 0; i < n; i++) {
+    c.innerHTML += `
+      <div class="match-row">
+        <span class="match-num">${i+1}</span>
+        <input type="number" id="pts_${i}" placeholder="Points adversaire" min="0">
+        <button class="toggle-btn win" id="btn_${i}" onclick="toggleResult(${i})">Victoire</button>
+      </div>`;
+  }
+}
+
+function toggleResult(i) {
+  const btn = document.getElementById("btn_" + i);
+  if (btn.classList.contains("win")) {
+    btn.classList.remove("win"); btn.classList.add("lose"); btn.textContent = "Défaite";
+  } else {
+    btn.classList.remove("lose"); btn.classList.add("win"); btn.textContent = "Victoire";
+  }
+}
+
+function enregistrer() {
+  if (!joueurActif) { openProfilsModal(); return; }
+  const p = profils[joueurActif];
+  const type = document.getElementById("selType").value;
+  const niveau = document.getElementById("selNiveau").value;
+  const nbMatchs = type === "Tournoi" ? 1 : (type === "Interclubs Dames" ? 3 : 4);
+  const ptsJoueur = (type === "Interclubs Dames" && p.genre === "Femme") ? p.points_dames : p.points_messieurs;
+
+  if (!p.matchs_du_mois) p.matchs_du_mois = [];
+  let count = 0;
+  for (let i = 0; i < nbMatchs; i++) {
+    const raw = document.getElementById("pts_" + i).value.trim();
+    if (!raw) continue;
+    const ptsAdv = parseFloat(raw.replace(",", "."));
+    if (isNaN(ptsAdv)) continue;
+    const victoire = document.getElementById("btn_" + i).classList.contains("win");
+    const gain = calculer(ptsJoueur, ptsAdv, victoire, type, niveau);
+    p.matchs_du_mois.push({
+      type, niveau, ptsAdv, victoire, pts: Math.round(gain * 100) / 100
+    });
+    document.getElementById("pts_" + i).value = "";
+    document.getElementById("btn_" + i).classList.remove("lose");
+    document.getElementById("btn_" + i).classList.add("win");
+    document.getElementById("btn_" + i).textContent = "Victoire";
+    count++;
+  }
+  if (count === 0) { showToast("Aucun adversaire saisi"); return; }
+  save(); updateStats(); refreshMatchList();
+  showToast(count === 1 ? "1 match enregistré ✓" : `${count} matchs enregistrés ✓`);
+}
+
+function annulerDernier() {
+  if (!joueurActif) return;
+  const p = profils[joueurActif];
+  if (!p.matchs_du_mois || p.matchs_du_mois.length === 0) { showToast("Aucun match à annuler"); return; }
+  p.matchs_du_mois.pop();
+  save(); updateStats(); refreshMatchList();
+  showToast("Dernier match annulé");
+}
+
+function confirmCloture() {
+  if (!joueurActif) return;
+  const p = profils[joueurActif];
+  const matchs = p.matchs_du_mois || [];
+  const evo = matchs.reduce((s, m) => s + m.pts, 0);
+  const evoR = Math.round(evo * 100) / 100;
+  const ptsBase = p.genre === "Femme" ? p.points_dames : p.points_messieurs;
+  const nouveau = Math.round((ptsBase + evo) * 100) / 100;
+  const signe = evoR >= 0 ? "+" : "";
+  document.getElementById("clotureResume").innerHTML =
+    `Base officielle : <strong>${ptsBase} pts</strong><br>
+     Évolution du mois : <strong style="color:${evoR>=0?'var(--green)':'var(--red)'};">${signe}${evoR} pts</strong><br>
+     Nouveau total : <strong>${nouveau} pts</strong>`;
+  openModal("modalCloture");
+}
+
+function cloturerMois() {
+  if (!joueurActif) return;
+  const p = profils[joueurActif];
+  const matchs = p.matchs_du_mois || [];
+  const evo = matchs.reduce((s, m) => s + m.pts, 0);
+  const clef = p.genre === "Femme" ? "points_dames" : "points_messieurs";
+  p[clef] = Math.round((p[clef] + evo) * 100) / 100;
+  p.matchs_du_mois = [];
+  save(); closeModal("modalCloture"); updateStats(); refreshMatchList();
+  showToast("Mois clôturé ✓ Points mis à jour");
+}
+
+function openProfilsModal() {
+  const list = document.getElementById("listProfils");
+  list.innerHTML = "";
+  Object.keys(profils).forEach(nom => {
+    const p = profils[nom];
+    const pts = p.genre === "Femme" ? p.points_dames : p.points_messieurs;
+    const isActive = nom === joueurActif;
+    list.innerHTML += `
+      <div class="profil-item ${isActive ? 'active-profil' : ''}" onclick="changerProfil('${nom.replace(/'/g,"\\'")}')">
+        <div>
+          <div class="pi-name">${nom}</div>
+          <div class="pi-pts">${pts} pts · ${p.genre}</div>
+        </div>
+        ${isActive ? '<span class="pi-check">✓</span>' : ''}
+      </div>`;
+  });
+  if (Object.keys(profils).length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:14px;text-align:center;padding:16px 0;">Aucun profil. Créez-en un !</p>';
+  }
+  openModal("modalProfils");
+}
+
+function changerProfil(nom) {
+  joueurActif = nom;
+  const p = profils[nom];
+  document.getElementById("selType").value = p.genre === "Femme" ? "Interclubs Dames" : "Interclubs Messieurs";
+  onTypeChange(); save(); updateStats(); refreshMatchList();
+  closeModal("modalProfils");
+  showToast("Profil : " + nom);
+}
+
+function openCreerProfil() {
+  closeModal("modalProfils");
+  document.getElementById("inputNom").value = "";
+  document.getElementById("inputPtsM").value = "1150";
+  document.getElementById("inputPtsD").value = "0";
+  document.getElementById("inputGenre").value = "Homme";
+  document.getElementById("fieldPtsD").style.display = "none";
+  document.getElementById("inputGenre").onchange = function() {
+    document.getElementById("fieldPtsD").style.display = this.value === "Femme" ? "block" : "none";
+  };
+  openModal("modalCreer");
+}
+
+function creerProfil() {
+  const nom = document.getElementById("inputNom").value.trim();
+  if (!nom) { showToast("Entrez un nom"); return; }
+  const genre = document.getElementById("inputGenre").value;
+  const ptsM = parseFloat(document.getElementById("inputPtsM").value) || 0;
+  const ptsD = parseFloat(document.getElementById("inputPtsD").value) || 0;
+  profils[nom] = { genre, points_messieurs: ptsM, points_dames: ptsD, matchs_du_mois: [] };
+  joueurActif = nom;
+  document.getElementById("selType").value = genre === "Femme" ? "Interclubs Dames" : "Interclubs Messieurs";
+  onTypeChange(); save(); updateStats(); refreshMatchList();
+  closeModal("modalCreer");
+  showToast("Profil créé : " + nom);
+}
+
+function openModal(id) { document.getElementById(id).classList.add("active"); }
+function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+
+function showTab(tab) {
+  document.getElementById("tabSaisie").style.display = tab === "saisie" ? "block" : "none";
+  document.getElementById("tabMois").style.display = tab === "mois" ? "block" : "none";
+  document.querySelectorAll(".tab").forEach((t, i) => {
+    t.classList.toggle("active", (i === 0 && tab === "saisie") || (i === 1 && tab === "mois"));
+  });
+  if (tab === "mois") refreshMatchList();
+}
+
+document.querySelectorAll(".modal-overlay").forEach(o => {
+  o.addEventListener("click", e => { if (e.target === o) o.classList.remove("active"); });
+});
+
+load();
+onTypeChange();
+updateStats();
+if (Object.keys(profils).length === 0) {
+  setTimeout(() => openCreerProfil(), 300);
+}
+</script>
+</body>
+</html>
