@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#0f1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;AFTT Ping&quot;,&quot;short_name&quot;:&quot;Ping&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#0f1117&quot;,&quot;theme_color&quot;:&quot;#0f1117&quot;}">
-<title>AFTT · Mon Compteur Ping</title>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Ping Simulator AFTT&quot;,&quot;short_name&quot;:&quot;Ping Sim&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#0f1117&quot;,&quot;theme_color&quot;:&quot;#0f1117&quot;}">
+<title>Ping Simulator · AFTT</title>
 <style>
   :root {
     --bg: #0f1117; --surface: #181c27; --surface2: #1e2336;
@@ -180,14 +180,60 @@
     font-size: 14px; color: var(--muted); line-height: 1.6;
   }
   .confirm-box strong { color: var(--red); }
+
+  /* PAGE ACCUEIL */
+  .home-screen { padding: 20px 14px; }
+  .home-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .home-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+  .home-profil-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 14px;
+  }
+  .home-profil-card:active { background: var(--surface2); border-color: var(--border2); transform: scale(0.99); }
+  .home-profil-avatar {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--surface2);
+    border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .home-profil-info { flex: 1; min-width: 0; }
+  .home-profil-name { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+  .home-profil-pts { font-size: 13px; color: var(--muted); }
+  .home-profil-evo { font-size: 13px; font-weight: 600; margin-left: auto; flex-shrink: 0; }
+  .home-profil-arrow { color: var(--muted); font-size: 20px; margin-left: 6px; }
+  .home-new-btn {
+    width: 100%; padding: 16px; background: none;
+    border: 2px dashed var(--border2); border-radius: var(--radius);
+    color: var(--muted); font-size: 15px; cursor: pointer; transition: all 0.15s;
+    margin-top: 6px;
+  }
+  .home-new-btn:active { background: var(--surface); color: var(--text); }
 </style>
 </head>
 <body>
 
+<!-- PAGE ACCUEIL -->
+<div id="pageAccueil" style="display:none;">
+  <div style="position:sticky;top:0;z-index:10;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px 10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h1 style="font-size:18px;font-weight:700;letter-spacing:-0.3px;">Ping Simulator <span style="color:var(--accent);">·</span> AFTT</h1>
+    </div>
+  </div>
+  <div class="home-screen">
+    <div class="home-title">Bonjour 👋</div>
+    <div class="home-subtitle">Quel joueur êtes-vous aujourd'hui ?</div>
+    <div id="homeListProfils"></div>
+    <button class="home-new-btn" onclick="openCreerProfilDepuisAccueil()">+ Nouveau profil</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:20px;">Outil non officiel par <strong style="color:var(--text);">PurpleNicode</strong></p>
+  </div>
+</div>
+
+<!-- APP PRINCIPALE -->
+<div id="appPrincipale" style="display:none;">
 <div class="header">
   <div class="header-top">
-    <h1>AFTT <span>·</span> Ping</h1>
-    <button class="btn-ghost" onclick="openProfilsModal()">👤 Profils</button>
+    <h1>Ping Simulator <span>·</span> AFTT</h1>
+    <button class="btn-ghost" onclick="retourAccueil()">← Profils</button>
   </div>
 </div>
 
@@ -343,6 +389,8 @@
     <button class="btn-secondary" onclick="closeModal('modalCloture')">Annuler</button>
   </div>
 </div>
+
+</div><!-- fin appPrincipale -->
 
 <div class="toast" id="toast"></div>
 
@@ -634,20 +682,20 @@ function openProfilsModal(){
       const p=profils[nom];
       const pts=p.genre==="Femme"?p.points_dames:p.points_messieurs;
       const isActive=nom===joueurActif;
-      const safeNom=nom.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+      const idx=noms.indexOf(nom);
       list.innerHTML+=`
-        <div class="profil-item ${isActive?'active-profil':''}" id="pi_${safeNom}">
-          <div class="profil-item-top" onclick="toggleProfilActions('${safeNom}')">
+        <div class="profil-item ${isActive?'active-profil':''}" id="pi_${idx}">
+          <div class="profil-item-top" onclick="toggleProfilActions(${idx})">
             <div>
               <div class="pi-name">${nom}${isActive?' <span style="font-size:11px;color:var(--accent);">(actif)</span>':''}</div>
               <div class="pi-pts">${pts} pts · ${p.genre}</div>
             </div>
             <span style="color:var(--muted);font-size:18px;">›</span>
           </div>
-          <div class="profil-actions" id="pa_${safeNom}">
-            ${!isActive?`<button class="btn-action select" onclick="changerProfil('${safeNom}')">✓ Activer</button>`:''}
-            <button class="btn-action edit" onclick="ouvrirEditionProfil('${safeNom}')">✏️ Modifier</button>
-            <button class="btn-action del" onclick="demanderSuppression('${safeNom}')">🗑 Supprimer</button>
+          <div class="profil-actions" id="pa_${idx}">
+            ${!isActive?`<button class="btn-action select" onclick="changerProfilParIndex(${idx})">✓ Activer</button>`:''}
+            <button class="btn-action edit" onclick="ouvrirEditionProfilParIndex(${idx})">✏️ Modifier</button>
+            <button class="btn-action del" onclick="demanderSuppressionParIndex(${idx})">🗑 Supprimer</button>
           </div>
         </div>`;
     });
@@ -655,10 +703,16 @@ function openProfilsModal(){
   openModal("modalProfils");
 }
 
-function toggleProfilActions(nom){
-  const pa=document.getElementById("pa_"+nom);
+function getNomParIndex(idx){return Object.keys(profils)[idx];}
+
+function toggleProfilActions(idx){
+  const pa=document.getElementById("pa_"+idx);
   if(pa)pa.classList.toggle("open");
 }
+
+function changerProfilParIndex(idx){changerProfil(getNomParIndex(idx));}
+function ouvrirEditionProfilParIndex(idx){ouvrirEditionProfil(getNomParIndex(idx));}
+function demanderSuppressionParIndex(idx){demanderSuppression(getNomParIndex(idx));}
 
 function changerProfil(nom){
   joueurActif=nom;
@@ -724,8 +778,8 @@ function validerProfil(){
     profils[nom]={genre,points_messieurs:ptsM,points_dames:ptsD,matchs_du_mois:[]};
     joueurActif=nom;
     document.getElementById("selType").value=genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
-    onTypeChange();save();updateStats();refreshMatchList();
-    closeModal("modalCreer");
+    save();closeModal("modalCreer");
+    afficherApp();
     showToast("Profil créé : "+nom);
   }
 }
@@ -745,12 +799,18 @@ function confirmerSuppression(){
     joueurActif=restants.length>0?restants[0]:null;
   }
   nomASuppr=null;
-  save();closeModal("modalSupprimer");updateStats();refreshMatchList();
+  save();closeModal("modalSupprimer");
   showToast("Profil supprimé");
-  if(joueurActif){
+  const restantsApres=Object.keys(profils).length;
+  if(restantsApres===0){
+    afficherApp(); setTimeout(()=>openCreerProfil(),300);
+  } else if(restantsApres===1){
+    joueurActif=Object.keys(profils)[0];
     const p=profils[joueurActif];
     document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
-    onTypeChange();
+    afficherApp();
+  } else {
+    afficherAccueil();
   }
 }
 
@@ -770,8 +830,91 @@ document.querySelectorAll(".modal-overlay").forEach(o=>{
   o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("active");});
 });
 
-load(); onTypeChange(); updateStats();
-if(Object.keys(profils).length===0)setTimeout(()=>openCreerProfil(),300);
+/* ---- NAVIGATION ACCUEIL / APP ---- */
+function afficherAccueil(){
+  document.getElementById("pageAccueil").style.display="block";
+  document.getElementById("appPrincipale").style.display="none";
+  renderHomeList();
+}
+
+function afficherApp(){
+  document.getElementById("pageAccueil").style.display="none";
+  document.getElementById("appPrincipale").style.display="block";
+  onTypeChange();
+  updateStats();
+  refreshMatchList();
+}
+
+function retourAccueil(){
+  afficherAccueil();
+}
+
+function renderHomeList(){
+  const list=document.getElementById("homeListProfils");
+  list.innerHTML="";
+  const noms=Object.keys(profils);
+  noms.forEach(nom=>{
+    const p=profils[nom];
+    const isFemme=p.genre==="Femme";
+    const matchs=p.matchs_du_mois||[];
+    // Calcul évolution totale (tous points confondus pour affichage résumé)
+    const evo=Math.round(matchs.reduce((s,m)=>s+m.pts,0)*100)/100;
+    const signe=evo>=0?"+":"";
+    const evoColor=evo>0?"var(--green)":evo<0?"var(--red)":"var(--muted)";
+    const ptsM=p.points_messieurs;
+    const ptsD=p.points_dames;
+    const ptsLine=isFemme
+      ? `${ptsM} pts Mess. · ${ptsD} pts Dames`
+      : `${ptsM} pts`;
+    const avatar=isFemme?"👩":"👨";
+    const hidx=noms.indexOf(nom);
+    list.innerHTML+=`
+      <div class="home-profil-card" onclick="selectionnerProfilParIndex(${hidx})">
+        <div class="home-profil-avatar">${avatar}</div>
+        <div class="home-profil-info">
+          <div class="home-profil-name">${nom}</div>
+          <div class="home-profil-pts">${ptsLine}</div>
+        </div>
+        ${matchs.length>0?`<div class="home-profil-evo" style="color:${evoColor};">${signe}${evo}<br><span style="font-size:10px;color:var(--muted);">${matchs.length} match${matchs.length>1?'s':''}</span></div>`:''}
+        <div class="home-profil-arrow">›</div>
+      </div>`;
+  });
+}
+
+function selectionnerProfilParIndex(idx){
+  selectionnerProfil(Object.keys(profils)[idx]);
+}
+function selectionnerProfil(nom){
+  joueurActif=nom;
+  const p=profils[nom];
+  document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
+  save();
+  afficherApp();
+}
+
+function openCreerProfilDepuisAccueil(){
+  openCreerProfil();
+  // Override: après création, aller dans l'app directement
+  // (géré dans validerProfil qui appelle afficherApp)
+}
+
+/* ---- INIT ---- */
+load();
+const nbProfils=Object.keys(profils).length;
+if(nbProfils===0){
+  // Aucun profil : afficher app + ouvrir création
+  afficherApp();
+  setTimeout(()=>openCreerProfil(),300);
+} else if(nbProfils===1){
+  // Un seul profil : aller direct dans l'app
+  joueurActif=Object.keys(profils)[0];
+  const p=profils[joueurActif];
+  document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
+  afficherApp();
+} else {
+  // Plusieurs profils : afficher l'accueil
+  afficherAccueil();
+}
 </script>
 </body>
 </html>
