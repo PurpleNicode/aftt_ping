@@ -243,24 +243,24 @@
 
 <div class="stats-card" id="statsCard">
   <div class="stats-name" id="statsName">Aucun profil</div>
-  <!-- Ligne points hommes (toujours visible) -->
+  <!-- Points messieurs (toujours visible) -->
   <div class="stats-pts" id="statsPtsM">—</div>
-  <!-- Ligne points dames (visible uniquement pour les femmes) -->
+  <!-- Points dames (femmes uniquement) -->
   <div id="blockDames" style="display:none;">
-    <div class="stats-pts" style="font-size:20px;margin-top:4px;" id="statsPtsD">—</div>
+    <div class="stats-pts" id="statsPtsD">—</div>
   </div>
   <button class="stats-edit-btn" id="btnEditPts" onclick="openEditPoints()" style="display:none;">✏️ Modifier les points</button>
-  <!-- Pills évolution messieurs -->
-  <div class="stats-row">
+  <!-- Ligne 1 : évolution messieurs (toujours visible) -->
+  <div class="stats-row" style="margin-top:12px;">
     <div class="stat-pill"><div class="val neu" id="statEvoM">0</div><div class="lbl" id="lblEvoM">Évolution</div></div>
     <div class="stat-pill"><div class="val neu" id="statVirtuelM">—</div><div class="lbl" id="lblVirtuelM">Virtuel</div></div>
-    <div class="stat-pill"><div class="val neu" id="statMatchs">0</div><div class="lbl">Matchs</div></div>
+    <div class="stat-pill"><div class="val neu" id="statMatchsM">0</div><div class="lbl" id="lblMatchsM">Matchs</div></div>
   </div>
-  <!-- Pills évolution dames (uniquement pour les femmes) -->
-  <div class="stats-row" id="rowEvoD" style="display:none;">
+  <!-- Ligne 2 : évolution dames (femmes uniquement) -->
+  <div class="stats-row" id="rowEvoD" style="display:none;margin-top:8px;">
     <div class="stat-pill"><div class="val neu" id="statEvoD">0</div><div class="lbl">Évol. Dames</div></div>
     <div class="stat-pill"><div class="val neu" id="statVirtuelD">—</div><div class="lbl">Virtuel Dames</div></div>
-    <div class="stat-pill" style="visibility:hidden;"></div>
+    <div class="stat-pill"><div class="val neu" id="statMatchsD">0</div><div class="lbl">Matchs D.</div></div>
   </div>
 </div>
 
@@ -302,7 +302,7 @@
   <div id="listMatchs"></div>
   <div id="emptyState" class="empty-state" style="display:none;">Aucun match ce mois-ci.<br>Commencez à saisir vos résultats !</div>
   <hr class="sep">
-  <button class="btn-secondary" style="margin-bottom:8px;" onclick="annulerDernier()">↩ Annuler le dernier match</button>
+
   <button class="btn-danger" onclick="confirmCloture()">🔒 Clôturer le mois</button>
 </div>
 
@@ -470,7 +470,7 @@ function updateStats(){
     document.getElementById("statEvoM").textContent="0";
     document.getElementById("statEvoM").className="val neu";
     document.getElementById("statVirtuelM").textContent="—";
-    document.getElementById("statMatchs").textContent="0";
+    document.getElementById("statMatchsM").textContent="0";
     document.getElementById("btnEditPts").style.display="none";
     document.getElementById("blockDames").style.display="none";
     document.getElementById("rowEvoD").style.display="none";
@@ -480,11 +480,13 @@ function updateStats(){
   const isFemme=p.genre==="Femme";
   const matchs=p.matchs_du_mois||[];
 
-  // Calculer évolution séparée messieurs / dames
+  // Évolution séparée messieurs / dames
   const evos={points_messieurs:0,points_dames:0};
+  const counts={points_messieurs:0,points_dames:0};
   matchs.forEach(m=>{
     const clef=m.clefPts||(isFemme?"points_dames":"points_messieurs");
     evos[clef]+=m.pts;
+    counts[clef]++;
   });
   const evoM=Math.round(evos.points_messieurs*100)/100;
   const evoD=Math.round(evos.points_dames*100)/100;
@@ -494,16 +496,22 @@ function updateStats(){
   document.getElementById("statsName").textContent="👤 "+joueurActif;
   document.getElementById("btnEditPts").style.display="inline-block";
 
-  // Affichage points messieurs
-  document.getElementById("statsPtsM").innerHTML=`${p.points_messieurs} <span class="pts-base">pts Messieurs</span>`;
+  // Points messieurs — même taille pour hommes et femmes
+  const lblM=isFemme?"pts Messieurs":"pts officiels";
+  document.getElementById("statsPtsM").innerHTML=`${p.points_messieurs} <span class="pts-base">${lblM}</span>`;
+
+  // Ligne 1 : évolution messieurs
+  const lblRow=isFemme?"Mess.":"";
   const evoMEl=document.getElementById("statEvoM");
   evoMEl.textContent=(evoM>=0?"+":"")+evoM;
   evoMEl.className="val "+(evoM>0?"pos":evoM<0?"neg":"neu");
   document.getElementById("statVirtuelM").textContent=virtuelM;
-  document.getElementById("lblEvoM").textContent="Évol. Mess.";
-  document.getElementById("lblVirtuelM").textContent="Virtuel Mess.";
+  document.getElementById("lblEvoM").textContent=isFemme?"Évol. Mess.":"Évolution";
+  document.getElementById("lblVirtuelM").textContent=isFemme?"Virtuel Mess.":"Virtuel";
+  document.getElementById("statMatchsM").textContent=isFemme?counts.points_messieurs:matchs.length;
+  document.getElementById("lblMatchsM").textContent=isFemme?"Matchs Mess.":"Matchs";
 
-  // Affichage points dames (uniquement si femme)
+  // Points dames + ligne 2 (femmes uniquement)
   document.getElementById("blockDames").style.display=isFemme?"block":"none";
   document.getElementById("rowEvoD").style.display=isFemme?"flex":"none";
   if(isFemme){
@@ -512,9 +520,8 @@ function updateStats(){
     evoDEl.textContent=(evoD>=0?"+":"")+evoD;
     evoDEl.className="val "+(evoD>0?"pos":evoD<0?"neg":"neu");
     document.getElementById("statVirtuelD").textContent=virtuelD;
+    document.getElementById("statMatchsD").textContent=counts.points_dames;
   }
-
-  document.getElementById("statMatchs").textContent=matchs.length;
 }
 
 function refreshMatchList(){
@@ -529,28 +536,58 @@ function refreshMatchList(){
     const signe=m.pts>=0?"+":"";
     const color=m.pts>0?"var(--green)":"var(--red)";
     const statut=m.victoire?"Victoire":"Défaite";
-    list.innerHTML+=`<div class="match-card">
-      <div class="mc-left">
+    list.innerHTML+=`<div class="match-card" id="mc_${i}">
+      <div class="mc-left" style="flex:1;">
         <div class="mc-comp">${m.type} · ${m.niveau.split('(')[0].trim()}</div>
         <div class="mc-vs">${statut} vs <strong>${m.ptsAdv} pts</strong></div>
       </div>
-      <div class="mc-pts" style="color:${color}">${signe}${m.pts}</div>
+      <div class="mc-pts" style="color:${color};margin-right:10px;">${signe}${m.pts}</div>
+      <button onclick="supprimerMatch(${i})" style="background:rgba(247,110,110,0.1);border:1px solid rgba(247,110,110,0.3);border-radius:8px;color:var(--red);font-size:16px;padding:6px 10px;cursor:pointer;flex-shrink:0;" title="Supprimer ce match">🗑</button>
     </div>`;
   });
 }
 
-function onTypeChange(){
+function onTypeChange(restaurer=false){
   const type=document.getElementById("selType").value;
   const selN=document.getElementById("selNiveau");
   const opts=type.includes("Interclubs")?OPTS_INTERCLUBS:OPTS_TOURNOIS;
   selN.innerHTML=opts.map(o=>`<option value="${o}">${o}</option>`).join("");
+
+  // Restaurer le dernier niveau utilisé si demandé et compatible avec le type actuel
+  const p=joueurActif&&profils[joueurActif]?profils[joueurActif]:{};
+  if(restaurer && p.dernierNiveau && p.dernierType===type){
+    // Vérifier que le niveau existe dans les options actuelles
+    const exists=opts.includes(p.dernierNiveau);
+    if(exists) selN.value=p.dernierNiveau;
+  }
+
   const nb=type==="Tournoi"?1:(type==="Interclubs Dames"?3:4);
   const isTournoi=type==="Tournoi";
-  document.getElementById("fieldTournoiGenre").style.display=isTournoi?"block":"none";
-  if(isTournoi&&joueurActif&&profils[joueurActif]){
-    document.getElementById("selTournoiGenre").value=profils[joueurActif].genre==="Femme"?"Dames":"Messieurs";
+  const isFemme=joueurActif&&profils[joueurActif]&&profils[joueurActif].genre==="Femme";
+  document.getElementById("fieldTournoiGenre").style.display=(isTournoi&&isFemme)?"block":"none";
+  if(isTournoi&&isFemme){
+    document.getElementById("selTournoiGenre").value=p.dernierTournoiGenre||"Dames";
   }
   buildMatchInputs(nb);
+}
+
+function filtrerOptionsGenre(){
+  const isFemme=joueurActif&&profils[joueurActif]&&profils[joueurActif].genre==="Femme";
+  const p=profils[joueurActif]||{};
+  const selType=document.getElementById("selType");
+
+  // Masquer Interclubs Dames pour les hommes
+  Array.from(selType.options).forEach(opt=>{
+    opt.hidden=(!isFemme && opt.value==="Interclubs Dames");
+  });
+
+  // Restaurer le dernier type utilisé, sinon valeur par défaut selon genre
+  const defaultType=isFemme?"Interclubs Dames":"Interclubs Messieurs";
+  const lastType=p.dernierType||defaultType;
+  // Vérifier que le type mémorisé est accessible (ex: homme avec type dames mémorisé)
+  selType.value=(!isFemme && lastType==="Interclubs Dames")?"Interclubs Messieurs":lastType;
+
+  onTypeChange(true); // true = restaurer aussi le niveau
 }
 function buildMatchInputs(n){
   const c=document.getElementById("matchInputs"); c.innerHTML="";
@@ -598,6 +635,12 @@ function enregistrer(){
     count++;
   }
   if(count===0){showToast("Aucun adversaire saisi");return;}
+  // Mémoriser les derniers sélecteurs utilisés pour ce profil
+  profils[joueurActif].dernierType=type;
+  profils[joueurActif].dernierNiveau=niveau;
+  if(type==="Tournoi"){
+    profils[joueurActif].dernierTournoiGenre=document.getElementById("selTournoiGenre").value;
+  }
   save();updateStats();refreshMatchList();
   showToast(count===1?"1 match enregistré ✓":`${count} matchs enregistrés ✓`);
 }
@@ -609,6 +652,36 @@ function annulerDernier(){
   p.matchs_du_mois.pop();
   save();updateStats();refreshMatchList();
   showToast("Dernier match annulé");
+}
+
+function supprimerMatch(idx){
+  if(!joueurActif)return;
+  const p=profils[joueurActif];
+  if(!p.matchs_du_mois||idx<0||idx>=p.matchs_du_mois.length)return;
+  const m=p.matchs_du_mois[idx];
+  const statut=m.victoire?"Victoire":"Défaite";
+  const signe=m.pts>=0?"+":"";
+  // Confirmation rapide via le match card lui-même
+  const card=document.getElementById("mc_"+idx);
+  if(card.dataset.confirm==="1"){
+    p.matchs_du_mois.splice(idx,1);
+    save();updateStats();refreshMatchList();
+    showToast("Match supprimé ✓");
+  } else {
+    // Premier clic : demander confirmation visuellement
+    card.style.border="1px solid var(--red)";
+    card.style.background="rgba(247,110,110,0.08)";
+    card.dataset.confirm="1";
+    // Reset après 3 secondes si pas confirmé
+    setTimeout(()=>{
+      if(card&&card.dataset.confirm==="1"){
+        card.style.border="";
+        card.style.background="";
+        card.dataset.confirm="0";
+      }
+    },3000);
+    showToast("Appuyez à nouveau pour confirmer");
+  }
 }
 
 function confirmCloture(){
@@ -722,7 +795,8 @@ function changerProfil(nom){
   joueurActif=nom;
   const p=profils[nom];
   document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
-  onTypeChange();save();updateStats();refreshMatchList();
+  save();updateStats();refreshMatchList();
+  filtrerOptionsGenre();
   closeModal("modalProfils");
   showToast("Profil : "+nom);
 }
@@ -781,7 +855,6 @@ function validerProfil(){
     const ptsD=parseFloat(document.getElementById("inputPtsD").value)||0;
     profils[nom]={genre,points_messieurs:ptsM,points_dames:ptsD,matchs_du_mois:[]};
     joueurActif=nom;
-    document.getElementById("selType").value=genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
     save();closeModal("modalCreer");
     afficherApp();
     showToast("Profil créé : "+nom);
@@ -844,7 +917,7 @@ function afficherAccueil(){
 function afficherApp(){
   document.getElementById("pageAccueil").style.display="none";
   document.getElementById("appPrincipale").style.display="block";
-  onTypeChange();
+  filtrerOptionsGenre();
   updateStats();
   refreshMatchList();
 }
@@ -862,7 +935,11 @@ function renderHomeList(){
     const isFemme=p.genre==="Femme";
     const matchs=p.matchs_du_mois||[];
     // Calcul évolution totale (tous points confondus pour affichage résumé)
-    const evo=Math.round(matchs.reduce((s,m)=>s+m.pts,0)*100)/100;
+    const evoTotal=Math.round(matchs.reduce((s,m)=>s+m.pts,0)*100)/100;
+    // Pour les dames, calculer évolution séparée
+    const evoMess=Math.round(matchs.filter(m=>(m.clefPts||"points_messieurs")==="points_messieurs").reduce((s,m)=>s+m.pts,0)*100)/100;
+    const evoDames=Math.round(matchs.filter(m=>m.clefPts==="points_dames").reduce((s,m)=>s+m.pts,0)*100)/100;
+    const evo=isFemme?evoMess:evoTotal;
     const signe=evo>=0?"+":"";
     const evoColor=evo>0?"var(--green)":evo<0?"var(--red)":"var(--muted)";
     const ptsM=p.points_messieurs;
@@ -873,14 +950,21 @@ function renderHomeList(){
     const avatar=isFemme?"👩":"👨";
     const hidx=noms.indexOf(nom);
     list.innerHTML+=`
-      <div class="home-profil-card" onclick="selectionnerProfilParIndex(${hidx})">
-        <div class="home-profil-avatar">${avatar}</div>
-        <div class="home-profil-info">
-          <div class="home-profil-name">${nom}</div>
-          <div class="home-profil-pts">${ptsLine}</div>
+      <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:10px;">
+        <div class="home-profil-card" style="margin-bottom:0;flex:1;" onclick="selectionnerProfilParIndex(${hidx})">
+          <div class="home-profil-avatar">${avatar}</div>
+          <div class="home-profil-info">
+            <div class="home-profil-name">${nom}</div>
+            <div class="home-profil-pts">${ptsLine}</div>
+          </div>
+          ${matchs.length>0?(isFemme?`<div class="home-profil-evo" style="font-size:12px;text-align:right;">
+            <div style="color:${evoMess>=0?'var(--green)':'var(--red)'};">${evoMess>=0?'+':''}${evoMess}<span style="color:var(--muted);font-size:10px;"> M</span></div>
+            <div style="color:${evoDames>=0?'var(--green)':'var(--red)'};">${evoDames>=0?'+':''}${evoDames}<span style="color:var(--muted);font-size:10px;"> D</span></div>
+            <div style="color:var(--muted);font-size:10px;">${matchs.length} match${matchs.length>1?'s':''}</div>
+          </div>`:`<div class="home-profil-evo" style="color:${evoColor};">${signe}${evo}<br><span style="font-size:10px;color:var(--muted);">${matchs.length} match${matchs.length>1?'s':''}</span></div>`):''}
+          <div class="home-profil-arrow">›</div>
         </div>
-        ${matchs.length>0?`<div class="home-profil-evo" style="color:${evoColor};">${signe}${evo}<br><span style="font-size:10px;color:var(--muted);">${matchs.length} match${matchs.length>1?'s':''}</span></div>`:''}
-        <div class="home-profil-arrow">›</div>
+        <button onclick="editerProfilDepuisAccueil(${hidx})" style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--accent);font-size:18px;padding:0 14px;cursor:pointer;flex-shrink:0;">✏️</button>
       </div>`;
   });
 }
@@ -888,10 +972,14 @@ function renderHomeList(){
 function selectionnerProfilParIndex(idx){
   selectionnerProfil(Object.keys(profils)[idx]);
 }
+function editerProfilDepuisAccueil(idx){
+  // Afficher l'app d'abord, puis ouvrir l'édition
+  document.getElementById("pageAccueil").style.display="none";
+  document.getElementById("appPrincipale").style.display="block";
+  setTimeout(()=>ouvrirEditionProfil(Object.keys(profils)[idx]), 50);
+}
 function selectionnerProfil(nom){
   joueurActif=nom;
-  const p=profils[nom];
-  document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
   save();
   afficherApp();
 }
