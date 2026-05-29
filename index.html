@@ -335,11 +335,11 @@
     </div>
     <div class="field">
       <label>Points Messieurs (classement provincial)</label>
-      <input type="number" id="inputPtsM" placeholder="1150" value="1150">
+      <input type="number" id="inputPtsM" placeholder="1150.00" value="1150" step="0.01" min="0">
     </div>
     <div class="field" id="fieldPtsD" style="display:none;">
       <label>Points Dames (si applicable)</label>
-      <input type="number" id="inputPtsD" placeholder="0" value="0">
+      <input type="number" id="inputPtsD" placeholder="0.00" value="0" step="0.01" min="0">
     </div>
     <button class="btn-primary" id="btnValiderProfil" onclick="validerProfil()" style="margin-bottom:10px;">Créer</button>
     <button class="btn-secondary" onclick="closeModal('modalCreer')">Annuler</button>
@@ -356,11 +356,11 @@
     </p>
     <div class="field">
       <label>Points Messieurs</label>
-      <input type="number" id="editPtsM" placeholder="1150">
+      <input type="number" id="editPtsM" placeholder="1150.00" step="0.01" min="0">
     </div>
     <div class="field" id="editFieldPtsD" style="display:none;">
       <label>Points Dames</label>
-      <input type="number" id="editPtsD" placeholder="0">
+      <input type="number" id="editPtsD" placeholder="0.00" step="0.01" min="0">
     </div>
     <button class="btn-primary" onclick="sauvegarderPoints()" style="margin-bottom:10px;">Enregistrer</button>
     <button class="btn-secondary" onclick="closeModal('modalEditPts')">Annuler</button>
@@ -462,6 +462,11 @@ function showToast(msg){
   t.textContent=msg; t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2200);
 }
+function fmtPts(v){
+  // Affiche les décimales seulement si nécessaires
+  const r=Math.round(v*100)/100;
+  return r%1===0?r.toString():r.toFixed(2);
+}
 
 function updateStats(){
   if(!joueurActif||!profils[joueurActif]){
@@ -498,28 +503,27 @@ function updateStats(){
 
   // Points messieurs — même taille pour hommes et femmes
   const lblM=isFemme?"pts Messieurs":"pts officiels";
-  document.getElementById("statsPtsM").innerHTML=`${p.points_messieurs} <span class="pts-base">${lblM}</span>`;
+  document.getElementById("statsPtsM").innerHTML=`${fmtPts(p.points_messieurs)} <span class="pts-base">${lblM}</span>`;
 
   // Ligne 1 : évolution messieurs
-  const lblRow=isFemme?"Mess.":"";
   const evoMEl=document.getElementById("statEvoM");
-  evoMEl.textContent=(evoM>=0?"+":"")+evoM;
+  evoMEl.textContent=(evoM>=0?"+":"")+fmtPts(evoM);
   evoMEl.className="val "+(evoM>0?"pos":evoM<0?"neg":"neu");
-  document.getElementById("statVirtuelM").textContent=virtuelM;
+  document.getElementById("statVirtuelM").textContent=fmtPts(virtuelM);
   document.getElementById("lblEvoM").textContent=isFemme?"Évol. Mess.":"Évolution";
   document.getElementById("lblVirtuelM").textContent=isFemme?"Virtuel Mess.":"Virtuel";
-  document.getElementById("statMatchsM").textContent=isFemme?counts.points_messieurs:matchs.length;
+  document.getElementById("statMatchsM").textContent=counts.points_messieurs;
   document.getElementById("lblMatchsM").textContent=isFemme?"Matchs Mess.":"Matchs";
 
   // Points dames + ligne 2 (femmes uniquement)
   document.getElementById("blockDames").style.display=isFemme?"block":"none";
   document.getElementById("rowEvoD").style.display=isFemme?"flex":"none";
   if(isFemme){
-    document.getElementById("statsPtsD").innerHTML=`${p.points_dames} <span class="pts-base">pts Dames</span>`;
+    document.getElementById("statsPtsD").innerHTML=`${fmtPts(p.points_dames)} <span class="pts-base">pts Dames</span>`;
     const evoDEl=document.getElementById("statEvoD");
-    evoDEl.textContent=(evoD>=0?"+":"")+evoD;
+    evoDEl.textContent=(evoD>=0?"+":"")+fmtPts(evoD);
     evoDEl.className="val "+(evoD>0?"pos":evoD<0?"neg":"neu");
-    document.getElementById("statVirtuelD").textContent=virtuelD;
+    document.getElementById("statVirtuelD").textContent=fmtPts(virtuelD);
     document.getElementById("statMatchsD").textContent=counts.points_dames;
   }
 }
@@ -539,9 +543,9 @@ function refreshMatchList(){
     list.innerHTML+=`<div class="match-card" id="mc_${i}">
       <div class="mc-left" style="flex:1;">
         <div class="mc-comp">${m.type} · ${m.niveau.split('(')[0].trim()}</div>
-        <div class="mc-vs">${statut} vs <strong>${m.ptsAdv} pts</strong></div>
+        <div class="mc-vs">${statut} vs <strong>${fmtPts(m.ptsAdv)} pts</strong></div>
       </div>
-      <div class="mc-pts" style="color:${color};margin-right:10px;">${signe}${m.pts}</div>
+      <div class="mc-pts" style="color:${color};margin-right:10px;">${signe}${fmtPts(m.pts)}</div>
       <button onclick="supprimerMatch(${i})" style="background:rgba(247,110,110,0.1);border:1px solid rgba(247,110,110,0.3);border-radius:8px;color:var(--red);font-size:16px;padding:6px 10px;cursor:pointer;flex-shrink:0;" title="Supprimer ce match">🗑</button>
     </div>`;
   });
@@ -594,7 +598,7 @@ function buildMatchInputs(n){
   for(let i=0;i<n;i++){
     c.innerHTML+=`<div class="match-row">
       <span class="match-num">${i+1}</span>
-      <input type="number" id="pts_${i}" placeholder="Points adversaire" min="0">
+      <input type="number" id="pts_${i}" placeholder="Points adversaire" min="0" step="0.01" inputmode="decimal">
       <button class="toggle-btn win" id="btn_${i}" onclick="toggleResult(${i})">Victoire</button>
     </div>`;
   }
@@ -629,12 +633,15 @@ function enregistrer(){
     const victoire=document.getElementById("btn_"+i).classList.contains("win");
     const gain=calculer(ptsJ,ptsAdv,victoire,type,niveau);
     p.matchs_du_mois.push({type,niveau,ptsAdv,victoire,pts:Math.round(gain*100)/100,clefPts});
-    document.getElementById("pts_"+i).value="";
-    const btn=document.getElementById("btn_"+i);
-    btn.classList.replace("lose","win"); btn.textContent="Victoire";
     count++;
   }
   if(count===0){showToast("Aucun adversaire saisi");return;}
+  // Réinitialiser TOUS les champs uniquement si au moins un match enregistré
+  for(let i=0;i<nb;i++){
+    document.getElementById("pts_"+i).value="";
+    const btn=document.getElementById("btn_"+i);
+    if(btn){btn.classList.remove("lose");btn.classList.add("win");btn.textContent="Victoire";}
+  }
   // Mémoriser les derniers sélecteurs utilisés pour ce profil
   profils[joueurActif].dernierType=type;
   profils[joueurActif].dernierNiveau=niveau;
@@ -645,22 +652,11 @@ function enregistrer(){
   showToast(count===1?"1 match enregistré ✓":`${count} matchs enregistrés ✓`);
 }
 
-function annulerDernier(){
-  if(!joueurActif)return;
-  const p=profils[joueurActif];
-  if(!p.matchs_du_mois||p.matchs_du_mois.length===0){showToast("Aucun match à annuler");return;}
-  p.matchs_du_mois.pop();
-  save();updateStats();refreshMatchList();
-  showToast("Dernier match annulé");
-}
-
 function supprimerMatch(idx){
   if(!joueurActif)return;
   const p=profils[joueurActif];
   if(!p.matchs_du_mois||idx<0||idx>=p.matchs_du_mois.length)return;
   const m=p.matchs_du_mois[idx];
-  const statut=m.victoire?"Victoire":"Défaite";
-  const signe=m.pts>=0?"+":"";
   // Confirmation rapide via le match card lui-même
   const card=document.getElementById("mc_"+idx);
   if(card.dataset.confirm==="1"){
@@ -700,10 +696,10 @@ function confirmCloture(){
   const fmt=(v)=>(v>=0?"+":"")+v;
   let html=``;
   if(evoM!==0||p.genre!=="Femme"){
-    html+=`Points messieurs : <strong>${p.points_messieurs}</strong> → <strong>${nvM} pts</strong> <span style="color:${evoM>=0?'var(--green)':'var(--red)'};">(${fmt(evoM)})</span><br>`;
+    html+=`Points messieurs : <strong>${fmtPts(p.points_messieurs)}</strong> → <strong>${fmtPts(nvM)} pts</strong> <span style="color:${evoM>=0?'var(--green)':'var(--red)'};">(${fmt(evoM)})</span><br>`;
   }
   if(p.genre==="Femme"){
-    html+=`Points dames : <strong>${p.points_dames}</strong> → <strong>${nvD} pts</strong> <span style="color:${evoD>=0?'var(--green)':'var(--red)'};">(${fmt(evoD)})</span>`;
+    html+=`Points dames : <strong>${fmtPts(p.points_dames)}</strong> → <strong>${fmtPts(nvD)} pts</strong> <span style="color:${evoD>=0?'var(--green)':'var(--red)'};">(${fmt(evoD)})</span>`;
   }
   document.getElementById("clotureResume").innerHTML=html;
   openModal("modalCloture");
@@ -757,7 +753,7 @@ function openProfilsModal(){
   } else {
     noms.forEach(nom=>{
       const p=profils[nom];
-      const pts=p.genre==="Femme"?p.points_dames:p.points_messieurs;
+      const pts=p.genre==="Femme"?`${fmtPts(p.points_messieurs)}M / ${fmtPts(p.points_dames)}D`:fmtPts(p.points_messieurs);
       const isActive=nom===joueurActif;
       const idx=noms.indexOf(nom);
       list.innerHTML+=`
@@ -765,7 +761,7 @@ function openProfilsModal(){
           <div class="profil-item-top" onclick="toggleProfilActions(${idx})">
             <div>
               <div class="pi-name">${nom}${isActive?' <span style="font-size:11px;color:var(--accent);">(actif)</span>':''}</div>
-              <div class="pi-pts">${pts} pts · ${p.genre}</div>
+              <div class="pi-pts">${pts}${p.genre==="Femme"?" · Femme":" pts · Homme"}</div>
             </div>
             <span style="color:var(--muted);font-size:18px;">›</span>
           </div>
@@ -793,10 +789,10 @@ function demanderSuppressionParIndex(idx){demanderSuppression(getNomParIndex(idx
 
 function changerProfil(nom){
   joueurActif=nom;
-  const p=profils[nom];
-  document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
-  save();updateStats();refreshMatchList();
+  save();
   filtrerOptionsGenre();
+  updateStats();
+  refreshMatchList();
   closeModal("modalProfils");
   showToast("Profil : "+nom);
 }
@@ -843,7 +839,9 @@ function validerProfil(){
     p.genre=document.getElementById("inputGenre").value;
     p.points_messieurs=parseFloat(document.getElementById("inputPtsM").value)||0;
     p.points_dames=parseFloat(document.getElementById("inputPtsD").value)||0;
-    save();closeModal("modalCreer");updateStats();
+    save();closeModal("modalCreer");
+    filtrerOptionsGenre();
+    updateStats();
     showToast("Profil modifié ✓");
     nomEnEdition=null;
   } else {
@@ -883,8 +881,6 @@ function confirmerSuppression(){
     afficherApp(); setTimeout(()=>openCreerProfil(),300);
   } else if(restantsApres===1){
     joueurActif=Object.keys(profils)[0];
-    const p=profils[joueurActif];
-    document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
     afficherApp();
   } else {
     afficherAccueil();
@@ -945,8 +941,8 @@ function renderHomeList(){
     const ptsM=p.points_messieurs;
     const ptsD=p.points_dames;
     const ptsLine=isFemme
-      ? `${ptsM} pts Mess. · ${ptsD} pts Dames`
-      : `${ptsM} pts`;
+      ? `${fmtPts(ptsM)} pts Mess. · ${fmtPts(ptsD)} pts Dames`
+      : `${fmtPts(ptsM)} pts`;
     const avatar=isFemme?"👩":"👨";
     const hidx=noms.indexOf(nom);
     list.innerHTML+=`
@@ -958,8 +954,8 @@ function renderHomeList(){
             <div class="home-profil-pts">${ptsLine}</div>
           </div>
           ${matchs.length>0?(isFemme?`<div class="home-profil-evo" style="font-size:12px;text-align:right;">
-            <div style="color:${evoMess>=0?'var(--green)':'var(--red)'};">${evoMess>=0?'+':''}${evoMess}<span style="color:var(--muted);font-size:10px;"> M</span></div>
-            <div style="color:${evoDames>=0?'var(--green)':'var(--red)'};">${evoDames>=0?'+':''}${evoDames}<span style="color:var(--muted);font-size:10px;"> D</span></div>
+            <div style="color:${evoMess>=0?'var(--green)':'var(--red)'};">${evoMess>=0?'+':''}${fmtPts(evoMess)}<span style="color:var(--muted);font-size:10px;"> M</span></div>
+            <div style="color:${evoDames>=0?'var(--green)':'var(--red)'};">${evoDames>=0?'+':''}${fmtPts(evoDames)}<span style="color:var(--muted);font-size:10px;"> D</span></div>
             <div style="color:var(--muted);font-size:10px;">${matchs.length} match${matchs.length>1?'s':''}</div>
           </div>`:`<div class="home-profil-evo" style="color:${evoColor};">${signe}${evo}<br><span style="font-size:10px;color:var(--muted);">${matchs.length} match${matchs.length>1?'s':''}</span></div>`):''}
           <div class="home-profil-arrow">›</div>
@@ -1001,8 +997,6 @@ if(nbProfils===0){
 } else if(nbProfils===1){
   // Un seul profil : aller direct dans l'app
   joueurActif=Object.keys(profils)[0];
-  const p=profils[joueurActif];
-  document.getElementById("selType").value=p.genre==="Femme"?"Interclubs Dames":"Interclubs Messieurs";
   afficherApp();
 } else {
   // Plusieurs profils : afficher l'accueil
