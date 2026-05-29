@@ -961,6 +961,7 @@ function renderHomeList(){
           <div class="home-profil-arrow">›</div>
         </div>
         <button onclick="editerProfilDepuisAccueil(${hidx})" style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--accent);font-size:18px;padding:0 14px;cursor:pointer;flex-shrink:0;">✏️</button>
+        <button onclick="supprimerProfilDepuisAccueil(${hidx})" style="background:rgba(247,110,110,0.08);border:1px solid rgba(247,110,110,0.3);border-radius:var(--radius-sm);color:var(--red);font-size:18px;padding:0 14px;cursor:pointer;flex-shrink:0;">🗑</button>
       </div>`;
   });
 }
@@ -973,6 +974,12 @@ function editerProfilDepuisAccueil(idx){
   document.getElementById("pageAccueil").style.display="none";
   document.getElementById("appPrincipale").style.display="block";
   setTimeout(()=>ouvrirEditionProfil(Object.keys(profils)[idx]), 50);
+}
+function supprimerProfilDepuisAccueil(idx){
+  // Afficher l'app d'abord, puis ouvrir la modal de suppression
+  document.getElementById("pageAccueil").style.display="none";
+  document.getElementById("appPrincipale").style.display="block";
+  setTimeout(()=>demanderSuppression(Object.keys(profils)[idx]), 50);
 }
 function selectionnerProfil(nom){
   joueurActif=nom;
