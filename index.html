@@ -228,6 +228,7 @@
     <div class="home-subtitle">Quel joueur êtes-vous aujourd'hui ?</div>
     <div id="homeListProfils"></div>
     <button class="home-new-btn" onclick="openCreerProfilDepuisAccueil()">+ Nouveau profil</button>
+    <button id="btnInstaller" onclick="installerApp()" style="display:none;width:100%;margin-top:10px;padding:14px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;cursor:pointer;">📲 Installer l'application</button>
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:20px;">Outil non officiel par <strong style="color:var(--text);">PurpleNicode</strong></p>
   </div>
 </div>
@@ -289,6 +290,17 @@
   <div class="field">
     <label>Division / Catégorie</label>
     <select id="selNiveau"></select>
+  </div>
+  <div class="field" id="fieldNbMatchs" style="display:none;">
+    <label>Nombre de matchs à encoder</label>
+    <select id="selNbMatchs" onchange="onNbMatchsChange()">
+      <option value="1">1 match</option>
+      <option value="2">2 matchs</option>
+      <option value="3">3 matchs</option>
+      <option value="4">4 matchs</option>
+      <option value="5">5 matchs</option>
+      <option value="6">6 matchs</option>
+    </select>
   </div>
   <div class="field">
     <label>Résultats</label>
@@ -560,18 +572,32 @@ function onTypeChange(restaurer=false){
   // Restaurer le dernier niveau utilisé si demandé et compatible avec le type actuel
   const p=joueurActif&&profils[joueurActif]?profils[joueurActif]:{};
   if(restaurer && p.dernierNiveau && p.dernierType===type){
-    // Vérifier que le niveau existe dans les options actuelles
     const exists=opts.includes(p.dernierNiveau);
     if(exists) selN.value=p.dernierNiveau;
   }
 
-  const nb=type==="Tournoi"?1:(type==="Interclubs Dames"?3:4);
   const isTournoi=type==="Tournoi";
   const isFemme=joueurActif&&profils[joueurActif]&&profils[joueurActif].genre==="Femme";
+
+  // Afficher/masquer sélecteur nombre de matchs (tournoi uniquement)
+  document.getElementById("fieldNbMatchs").style.display=isTournoi?"block":"none";
+  if(isTournoi){
+    // Restaurer le dernier nombre de matchs ou remettre à 1
+    const dernierNb=restaurer&&p.dernierNbMatchs?p.dernierNbMatchs:1;
+    document.getElementById("selNbMatchs").value=dernierNb;
+  }
+
   document.getElementById("fieldTournoiGenre").style.display=(isTournoi&&isFemme)?"block":"none";
   if(isTournoi&&isFemme){
     document.getElementById("selTournoiGenre").value=p.dernierTournoiGenre||"Dames";
   }
+
+  const nb=isTournoi?parseInt(document.getElementById("selNbMatchs").value):(type==="Interclubs Dames"?3:4);
+  buildMatchInputs(nb);
+}
+
+function onNbMatchsChange(){
+  const nb=parseInt(document.getElementById("selNbMatchs").value);
   buildMatchInputs(nb);
 }
 
@@ -614,7 +640,7 @@ function enregistrer(){
   const p=profils[joueurActif];
   const type=document.getElementById("selType").value;
   const niveau=document.getElementById("selNiveau").value;
-  const nb=type==="Tournoi"?1:(type==="Interclubs Dames"?3:4);
+  const nb=type==="Tournoi"?parseInt(document.getElementById("selNbMatchs").value):(type==="Interclubs Dames"?3:4);
   // Déterminer quels points utiliser selon type et tableau joué
   let useDames=false;
   if(type==="Interclubs Dames") useDames=true;
@@ -647,6 +673,7 @@ function enregistrer(){
   profils[joueurActif].dernierNiveau=niveau;
   if(type==="Tournoi"){
     profils[joueurActif].dernierTournoiGenre=document.getElementById("selTournoiGenre").value;
+    profils[joueurActif].dernierNbMatchs=parseInt(document.getElementById("selNbMatchs").value);
   }
   save();updateStats();refreshMatchList();
   showToast(count===1?"1 match enregistré ✓":`${count} matchs enregistrés ✓`);
@@ -902,6 +929,33 @@ function showTab(tab){
 document.querySelectorAll(".modal-overlay").forEach(o=>{
   o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("active");});
 });
+
+// Enregistrement du Service Worker (requis pour l'installation PWA)
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(err=>console.log('SW:', err));
+}
+
+// Bouton d'installation PWA
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  // Afficher le bouton installer sur la page d'accueil
+  const btn=document.getElementById('btnInstaller');
+  if(btn) btn.style.display='block';
+});
+window.addEventListener('appinstalled', ()=>{
+  deferredPrompt=null;
+  const btn=document.getElementById('btnInstaller');
+  if(btn) btn.style.display='none';
+  showToast("App installée ✓");
+});
+
+function installerApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; });
+}
 
 /* ---- NAVIGATION ACCUEIL / APP ---- */
 function afficherAccueil(){
