@@ -235,6 +235,7 @@
     <div id="homeListProfils"></div>
     <button class="home-new-btn" onclick="openCreerProfilDepuisAccueil()">+ Nouveau profil</button>
     <button id="btnInstaller" onclick="installerApp()" style="display:none;width:100%;margin-top:10px;padding:14px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;cursor:pointer;">📲 Installer l'application</button>
+    <button onclick="partagerApp()" style="width:100%;margin-top:10px;padding:13px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;">📤 Partager l'application</button>
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:20px;">Outil non officiel par <strong style="color:var(--text);">PurpleNicode</strong></p>
   </div>
 </div>
@@ -984,6 +985,28 @@ function installerApp(){
   if(!deferredPrompt) return;
   deferredPrompt.prompt();
   deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; });
+}
+
+function partagerApp(){
+  const url="https://purplenicode.github.io/aftt_ping/";
+  const texte="Ping Simulator AFTT — Calcule l'évolution de tes points selon le barème officiel AFTT 🏓";
+  if(navigator.share){
+    navigator.share({title:"Ping Simulator AFTT", text:texte, url:url})
+      .catch(err=>{ if(err.name!=="AbortError") afficherLienPartage(url); });
+  } else {
+    afficherLienPartage(url);
+  }
+}
+
+function afficherLienPartage(url){
+  // Fallback : copier le lien dans le presse-papier
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(()=>{
+      showToast("Lien copié ✓ — Partagez-le à vos amis !");
+    });
+  } else {
+    showToast(url);
+  }
 }
 
 /* ---- NAVIGATION ACCUEIL / APP ---- */
