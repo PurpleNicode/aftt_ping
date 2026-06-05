@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ping-sim-aftt-v1';
+const CACHE_NAME = 'ping-sim-aftt-v2';
 const FILES_TO_CACHE = [
   './',
   './index.html',
@@ -8,15 +8,14 @@ const FILES_TO_CACHE = [
   './apple-touch-icon.png'
 ];
 
-// Installation : mise en cache des fichiers
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
+  // Ne pas attendre — permet la détection immédiate de mise à jour
   self.skipWaiting();
 });
 
-// Activation : nettoyage des anciens caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -26,9 +25,15 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch : répondre depuis le cache si disponible (mode hors-ligne)
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
+});
+
+// Écouter le message SKIP_WAITING depuis l'app
+self.addEventListener('message', event => {
+  if(event.data && event.data.type === 'SKIP_WAITING'){
+    self.skipWaiting();
+  }
 });

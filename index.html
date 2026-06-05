@@ -213,6 +213,12 @@
 </head>
 <body>
 
+<!-- BANDEAU MISE À JOUR -->
+<div id="bandeauMaj" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--accent);color:white;padding:14px 18px;align-items:center;justify-content:space-between;gap:12px;max-width:480px;margin:0 auto;">
+  <span style="font-size:14px;font-weight:500;">🔄 Mise à jour disponible !</span>
+  <button onclick="appliquerMiseAJour()" style="background:white;color:var(--accent);border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Mettre à jour</button>
+</div>
+
 <!-- PAGE ACCUEIL -->
 <div id="pageAccueil" style="display:none;">
   <div style="position:sticky;top:0;z-index:10;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px 10px;">
@@ -930,9 +936,32 @@ document.querySelectorAll(".modal-overlay").forEach(o=>{
   o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("active");});
 });
 
-// Enregistrement du Service Worker (requis pour l'installation PWA)
+// Enregistrement du Service Worker avec détection de mise à jour
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(err=>console.log('SW:', err));
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    reg.addEventListener('updatefound', ()=>{
+      const newWorker=reg.installing;
+      newWorker.addEventListener('statechange', ()=>{
+        if(newWorker.state==='installed' && navigator.serviceWorker.controller){
+          // Nouvelle version disponible — afficher le bandeau
+          document.getElementById('bandeauMaj').style.display='flex';
+        }
+      });
+    });
+  }).catch(err=>console.log('SW:', err));
+
+  // Si l'utilisateur clique "Mettre à jour"
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    window.location.reload();
+  });
+}
+
+function appliquerMiseAJour(){
+  navigator.serviceWorker.getRegistration().then(reg=>{
+    if(reg&&reg.waiting){
+      reg.waiting.postMessage({type:'SKIP_WAITING'});
+    }
+  });
 }
 
 // Bouton d'installation PWA
