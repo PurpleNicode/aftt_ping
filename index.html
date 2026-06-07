@@ -235,7 +235,7 @@
     <div id="homeListProfils"></div>
     <button class="home-new-btn" onclick="openCreerProfilDepuisAccueil()">+ Nouveau profil</button>
     <button id="btnInstaller" onclick="installerApp()" style="display:none;width:100%;margin-top:10px;padding:14px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;cursor:pointer;">📲 Installer l'application</button>
-    <button onclick="partagerApp()" style="width:100%;margin-top:10px;padding:13px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;">📤 Partager l'application</button>
+    <button onclick="openModal('modalPartager')" style="width:100%;margin-top:10px;padding:13px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;">📤 Partager / Installer</button>
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:20px;">Outil non officiel par <strong style="color:var(--text);">PurpleNicode</strong></p>
   </div>
 </div>
@@ -414,6 +414,31 @@
 </div>
 
 </div><!-- fin appPrincipale -->
+
+<!-- MODAL PARTAGER / INSTALLER -->
+<div class="modal-overlay" id="modalPartager">
+  <div class="modal">
+    <h2>Partager &amp; Installer</h2>
+
+    <!-- QR CODE -->
+    <div style="text-align:center;margin-bottom:18px;">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Scannez pour ouvrir l'app</p>
+      <canvas id="qrCanvas" style="border-radius:12px;"></canvas>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">purplenicode.github.io/aftt_ping</p>
+    </div>
+
+    <hr class="sep">
+
+    <!-- PARTAGER LE LIEN -->
+    <button class="btn-primary" onclick="partagerLien()" style="margin-bottom:10px;">📤 Envoyer le lien (WhatsApp, SMS...)</button>
+
+    <!-- INSTALLER -->
+    <div id="zoneInstaller"></div>
+
+    <hr class="sep">
+    <button class="btn-secondary" onclick="closeModal('modalPartager')">Fermer</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -921,7 +946,13 @@ function confirmerSuppression(){
   }
 }
 
-function openModal(id){document.getElementById(id).classList.add("active");}
+function openModal(id){
+  document.getElementById(id).classList.add("active");
+  if(id==="modalPartager"){
+    genererQRCode();
+    construireZoneInstaller();
+  }
+}
 function closeModal(id){document.getElementById(id).classList.remove("active");}
 
 function showTab(tab){
@@ -982,31 +1013,107 @@ window.addEventListener('appinstalled', ()=>{
 });
 
 function installerApp(){
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; });
+  if(deferredPrompt){ installerDirectement(); }
+  else { openModal('modalPartager'); }
 }
 
-function partagerApp(){
-  const url="https://purplenicode.github.io/aftt_ping/";
+const APP_URL="https://purplenicode.github.io/aftt_ping/";
+
+/* ---- QR CODE (génération native sans librairie) ---- */
+function genererQRCode(){
+  const canvas=document.getElementById("qrCanvas");
+  if(!canvas)return;
+  // Utiliser l'API QR via Google Charts (fallback simple et fiable)
+  const size=200;
+  const img=document.createElement("img");
+  img.src=`https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(APP_URL)}&bgcolor=1a1f2e&color=ffffff&format=png`;
+  img.width=size; img.height=size;
+  img.style.borderRadius="12px";
+  img.alt="QR Code Ping Simulator AFTT";
+  canvas.replaceWith(img);
+  img.id="qrCanvas";
+}
+
+/* ---- PARTAGER LE LIEN ---- */
+function partagerLien(){
   const texte="Ping Simulator AFTT — Calcule l'évolution de tes points selon le barème officiel AFTT 🏓";
   if(navigator.share){
-    navigator.share({title:"Ping Simulator AFTT", text:texte, url:url})
-      .catch(err=>{ if(err.name!=="AbortError") afficherLienPartage(url); });
+    navigator.share({title:"Ping Simulator AFTT",text:texte,url:APP_URL})
+      .catch(err=>{ if(err.name!=="AbortError") copierLien(); });
   } else {
-    afficherLienPartage(url);
+    copierLien();
+  }
+}
+function copierLien(){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(APP_URL).then(()=>showToast("Lien copié ✓"));
+  } else {
+    showToast(APP_URL);
   }
 }
 
-function afficherLienPartage(url){
-  // Fallback : copier le lien dans le presse-papier
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(()=>{
-      showToast("Lien copié ✓ — Partagez-le à vos amis !");
-    });
-  } else {
-    showToast(url);
+/* ---- ZONE INSTALLER (adaptive selon plateforme) ---- */
+function construireZoneInstaller(){
+  const zone=document.getElementById("zoneInstaller");
+  if(!zone)return;
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  const isFirefoxAndroid=/Android/.test(navigator.userAgent)&&/Firefox/.test(navigator.userAgent);
+  const isAndroid=/Android/.test(navigator.userAgent);
+  const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+
+  if(isStandalone){
+    zone.innerHTML=`<div style="text-align:center;padding:12px;background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.3);border-radius:var(--radius-sm);color:var(--green);font-size:14px;">✓ Application déjà installée</div>`;
+    return;
   }
+
+  if(isIOS){
+    zone.innerHTML=`
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.8;">
+        <div style="font-weight:600;margin-bottom:8px;font-size:14px;">📲 Installer sur iPhone / iPad</div>
+        <div>1. Ouvrez cette page dans <strong>Safari</strong></div>
+        <div>2. Appuyez sur <strong>⬆️ Partager</strong></div>
+        <div>3. Choisissez <strong>"Sur l'écran d'accueil"</strong></div>
+      </div>`;
+    return;
+  }
+
+  if(isFirefoxAndroid){
+    zone.innerHTML=`
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.8;">
+        <div style="font-weight:600;margin-bottom:8px;font-size:14px;">📲 Installer sur Android</div>
+        <div>Firefox ne supporte pas l'installation directe.</div>
+        <div>Ouvrez le lien dans <strong>Chrome</strong> puis :</div>
+        <div>Menu <strong>⋮ → Ajouter à l'écran d'accueil</strong></div>
+      </div>`;
+    return;
+  }
+
+  if(deferredPrompt){
+    // Chrome/Edge/Opera Android avec prompt disponible
+    zone.innerHTML=`<button class="btn-primary" onclick="installerDirectement()">📲 Installer l'application</button>`;
+  } else if(isAndroid){
+    // Android mais prompt non disponible
+    zone.innerHTML=`
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.8;">
+        <div style="font-weight:600;margin-bottom:8px;font-size:14px;">📲 Installer sur Android</div>
+        <div>Menu <strong>⋮ → Ajouter à l'écran d'accueil</strong></div>
+      </div>`;
+  } else {
+    // Desktop ou autre
+    zone.innerHTML=`
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;font-size:13px;color:var(--muted);">
+        Ouvrez ce lien sur votre smartphone pour l'installer.
+      </div>`;
+  }
+}
+
+function installerDirectement(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{
+    deferredPrompt=null;
+    construireZoneInstaller();
+  });
 }
 
 /* ---- NAVIGATION ACCUEIL / APP ---- */
