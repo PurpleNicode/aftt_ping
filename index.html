@@ -225,6 +225,7 @@
   <div style="position:sticky;top:0;z-index:10;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 18px 10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h1 style="font-size:18px;font-weight:700;letter-spacing:-0.3px;">Ping Simulator <span style="color:var(--accent);">·</span> AFTT</h1>
+      <button class="btn-ghost" onclick="openModal('modalAPropos')">ℹ️</button>
     </div>
   </div>
   <div class="home-screen">
@@ -415,6 +416,46 @@
 </div>
 
 </div><!-- fin appPrincipale -->
+
+<!-- MODAL À PROPOS -->
+<div class="modal-overlay" id="modalAPropos">
+  <div class="modal">
+    <h2>À propos</h2>
+
+    <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px;">
+      <strong style="color:var(--text);">Ping Simulator AFTT</strong> calcule en temps réel l'évolution de tes points selon le barème officiel de l'AFTT. Encode tes matchs d'interclubs ou de tournoi et suis ta progression mensuelle.
+    </p>
+
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text);">Comment ça marche</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+        <div>1. Crée ton profil avec tes points actuels</div>
+        <div>2. Encode tes résultats après chaque match</div>
+        <div>3. Clôture le mois pour mettre à jour ta base</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text);">Liens utiles</div>
+      <a href="https://data.aftt.be" target="_blank" style="font-size:13px;color:var(--accent);text-decoration:none;">🔗 data.aftt.be — vérifier ses points officiels</a>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text);">Contact</div>
+      <a href="mailto:nicoping2010@gmail.com" style="font-size:13px;color:var(--accent);text-decoration:none;">📧 nicoping2010@gmail.com</a>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">Bug, suggestion ou question ? N'hésitez pas !</div>
+    </div>
+
+    <div style="background:rgba(247,168,79,0.08);border:1px solid rgba(247,168,79,0.25);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.6;">
+      ⚠️ Outil non officiel — calculs fournis à titre indicatif. Consultez <a href="https://data.aftt.be" target="_blank" style="color:var(--accent);">data.aftt.be</a> pour vos points officiels.
+    </div>
+
+    <p style="text-align:center;font-size:12px;color:var(--muted);">Développé par <strong style="color:var(--text);">PurpleNicode</strong> · 2026</p>
+
+    <hr class="sep">
+    <button class="btn-secondary" onclick="closeModal('modalAPropos')">Fermer</button>
+  </div>
+</div>
 
 <!-- MODAL PARTAGER / INSTALLER -->
 <div class="modal-overlay" id="modalPartager">

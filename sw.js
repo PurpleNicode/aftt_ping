@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ping-sim-aftt-v5';
+const CACHE_NAME = 'ping-sim-aftt-v6';
 const FILES_TO_CACHE = [
   './',
   './index.html',
