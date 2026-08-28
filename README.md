@@ -54,4 +54,4 @@ Hébergé gratuitement sur GitHub Pages.
 
 ---
 
-*Développé par PurpleNicode · 2025*
+*Développé par PurpleNicode · 2026*
